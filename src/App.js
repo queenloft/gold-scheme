@@ -24,11 +24,11 @@ import {
 } from 'firebase/firestore';
 
 // Tailwind CSS is assumed to be available
-import 'tailwindcss/tailwind.css';
+// import 'tailwindcss/tailwind.css';
 
 // lucide-react icons
 const HomeIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>);
-const WalletIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-wallet"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M10 12h4"/><path d="M12 12v4"/></svg>);
+const WalletIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucude-wallet"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M10 12h4"/><path d="M12 12v4"/></svg>);
 const UserIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>);
 const PlusIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>);
 const LogOutIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>);
@@ -36,13 +36,7 @@ const GoldIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" heigh
 const CreditCardIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>);
 const EditIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-edit"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>);
 const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>);
-
-// Hardcoded schemes as per the request, but they are stored locally for this example
-const schemes = [
-  { id: '1', groupCode: 'AM-74', monthlyAmount: 20000, tenure: 12, title: 'Digi Gold', subtitle: 'Monthly Saving Scheme', description: 'Starting From Rs. 20,000/- per month', totalAmount: 240000 },
-  { id: '2', groupCode: 'GM-01', monthlyAmount: 5000, tenure: 12, title: 'Gold SIP', subtitle: 'Monthly Saving Scheme', description: 'Starting From Rs. 5,000/- per month', totalAmount: 60000 },
-  { id: '3', groupCode: 'GW-100', monthlyAmount: 10000, tenure: 11, title: 'Gold Weight Plan', subtitle: 'Daily Saving Scheme', description: 'Starting From Rs. 10,000/- per month', totalAmount: 110000 },
-];
+const UsersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>);
 
 // Helper function to format currency
 const formatCurrency = (amount) => {
@@ -70,8 +64,10 @@ const App = () => {
   const [userId, setUserId] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [currentPage, setCurrentPage] = useState('MyPlans');
-  const [myPlans, setMyPlans] = useState([]);
+  const [myProfile, setMyProfile] = useState(null); 
   const [userPlans, setUserPlans] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [schemes, setSchemes] = useState([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState('');
@@ -79,10 +75,10 @@ const App = () => {
   const [modalMessage, setModalMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDeactivateConfirmModal, setShowDeactivateConfirmModal] = useState(false);
+  const [userToDeactivate, setUserToDeactivate] = useState(null);
 
-  const __app_id = firebaseConfig.projectId; // Use project ID as app ID
+  const __app_id = firebaseConfig.projectId;
 
-  // Initial Firebase setup and authentication
   useEffect(() => {
     try {
       const app = initializeApp(firebaseConfig);
@@ -129,31 +125,26 @@ const App = () => {
     }
   }, []);
 
-  // Fetch user-specific plans and user data
   useEffect(() => {
     if (db && userId) {
-      // Fetch My Plans
-      const q = query(collection(db, `artifacts/${__app_id}/users/${userId}/myPlans`));
-      const unsubscribePlans = onSnapshot(q, (snapshot) => {
+      const qPlans = query(collection(db, `artifacts/${__app_id}/users/${userId}/myPlans`));
+      const unsubscribePlans = onSnapshot(qPlans, (snapshot) => {
         const plans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setUserPlans(plans);
       });
 
-      // Fetch user model data if it exists
       const userDocRef = doc(db, `artifacts/${__app_id}/users/${userId}/userData/userModel`);
       const unsubscribeUser = onSnapshot(userDocRef, (docSnap) => {
         if (docSnap.exists()) {
-          setMyPlans(docSnap.data());
+          setMyProfile(docSnap.data());
         } else {
-          // Create a default user profile if none exists
           setDoc(userDocRef, {
-            name: user?.displayName || 'Sathish Shalini',
-            email: user?.email || 'sakthivel9393@gmail.com',
-            mobile: '9786252624',
+            name: user?.displayName || 'புதிய பயனர்',
+            email: user?.email || 'மின்னஞ்சல் இல்லை',
+            mobile: 'தகவல் இல்லை',
             active: true,
+            role: 'user', // Default role for new users
             created_at: new Date().toISOString(),
-            schemeCount: 0,
-            dueDetails: 0,
           }).then(() => console.log('Default user profile created.'));
         }
       });
@@ -163,23 +154,51 @@ const App = () => {
         unsubscribeUser();
       };
     }
-  }, [db, userId, user]);
+  }, [db, userId, user, __app_id]);
 
-  // Handle User Registration
+  useEffect(() => {
+    if (db) {
+      const qSchemes = query(collection(db, `artifacts/${__app_id}/joinSchemes`));
+      const unsubscribeSchemes = onSnapshot(qSchemes, (snapshot) => {
+        const schemeList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setSchemes(schemeList);
+      });
+      return () => unsubscribeSchemes();
+    }
+  }, [db, __app_id]);
+
+  useEffect(() => {
+    if (db && myProfile?.role === 'admin') { // Fetch only if the current user is an admin
+      const qUsers = query(collection(db, `artifacts/${__app_id}/public/data/users`));
+      const unsubscribeUsers = onSnapshot(qUsers, (snapshot) => {
+        const userList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setAllUsers(userList);
+      });
+      return () => unsubscribeUsers();
+    }
+  }, [db, myProfile, __app_id]);
+
   const handleRegister = async (name, email, password, mobile) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const newUserId = userCredential.user.uid;
       const userDocRef = doc(db, `artifacts/${__app_id}/users/${newUserId}/userData/userModel`);
+      const publicUserDocRef = doc(db, `artifacts/${__app_id}/public/data/users`, newUserId);
 
       await setDoc(userDocRef, {
         name: name,
         email: email,
         mobile: mobile,
         active: true,
+        role: 'user',
         created_at: new Date().toISOString(),
-        schemeCount: 0,
-        dueDetails: 0,
+      });
+      await setDoc(publicUserDocRef, {
+        name: name,
+        email: email,
+        mobile: mobile,
+        active: true,
+        userId: newUserId,
       });
 
       setModalMessage('பதிவு வெற்றிகரமாக முடிந்தது!');
@@ -192,16 +211,23 @@ const App = () => {
     }
   };
 
-  // Handle User Profile Edit
   const handleEditProfile = async (updatedName, updatedMobile) => {
     if (db && userId) {
       try {
         const userDocRef = doc(db, `artifacts/${__app_id}/users/${userId}/userData/userModel`);
+        const publicUserDocRef = doc(db, `artifacts/${__app_id}/public/data/users`, userId);
+        
         await updateDoc(userDocRef, {
           name: updatedName,
           mobile: updatedMobile,
           updated_at: new Date().toISOString(),
         });
+
+        await updateDoc(publicUserDocRef, {
+          name: updatedName,
+          mobile: updatedMobile,
+        });
+
         setModalMessage('சுயவிவரம் வெற்றிகரமாக புதுப்பிக்கப்பட்டது!');
         setShowModal(true);
         setCurrentPage('UserScreen');
@@ -213,7 +239,6 @@ const App = () => {
     }
   };
 
-  // Handle Logout
   const handleLogout = async () => {
     if (auth) {
       try {
@@ -221,15 +246,16 @@ const App = () => {
         setUser(null);
         setUserId(null);
         setCurrentPage('Login');
-        setMyPlans([]);
+        setMyProfile(null);
         setUserPlans([]);
+        setAllUsers([]);
+        setSchemes([]);
       } catch (error) {
         console.error('Logout failed:', error);
       }
     }
   };
 
-  // Handle Join Plan
   const handleJoinPlan = async (scheme) => {
     if (db && userId) {
       try {
@@ -254,7 +280,6 @@ const App = () => {
     }
   };
 
-  // Handle Add Payment
   const handleAddPayment = async () => {
     if (db && userId && selectedPlanForPayment) {
       try {
@@ -267,7 +292,8 @@ const App = () => {
 
         const newPaidAmount = selectedPlanForPayment.paidAmount + amount;
         const newProgress = (newPaidAmount / selectedPlanForPayment.totalAmount) * 100;
-        const newPaidWeight = (newPaidAmount * 2.220) / selectedPlanForPayment.monthlyAmount; // Mock calculation based on user schema
+        
+        const newPaidWeight = (newPaidAmount / 20000) * 2.220; 
 
         const planRef = doc(db, `artifacts/${__app_id}/users/${userId}/myPlans`, selectedPlanForPayment.id);
         await updateDoc(planRef, {
@@ -276,7 +302,6 @@ const App = () => {
           progress: newProgress,
         });
 
-        // Add payment entry
         await addDoc(collection(db, `artifacts/${__app_id}/users/${userId}/paymentEntries`), {
           planId: selectedPlanForPayment.id,
           date: new Date().toISOString(),
@@ -298,15 +323,18 @@ const App = () => {
     }
   };
 
-  // Handle user deactivation/activation
-  const handleToggleUserActive = async () => {
-    if (db && userId && myPlans) {
+  const handleToggleUserActive = async (targetUserId, currentStatus) => {
+    if (db) {
       try {
-        const userDocRef = doc(db, `artifacts/${__app_id}/users/${userId}/userData/userModel`);
+        const userDocRef = doc(db, `artifacts/${__app_id}/users/${targetUserId}/userData/userModel`);
         await updateDoc(userDocRef, {
-          active: !myPlans.active,
+          active: !currentStatus,
         });
-        setModalMessage(`பயனர் நிலை '${myPlans.active ? 'செயலற்றது' : 'செயலில்'}' என மாற்றப்பட்டது.`);
+        const publicUserDocRef = doc(db, `artifacts/${__app_id}/public/data/users`, targetUserId);
+        await updateDoc(publicUserDocRef, {
+          active: !currentStatus,
+        });
+        setModalMessage(`பயனர் நிலை '${currentStatus ? 'செயலற்றது' : 'செயலில்'}' என மாற்றப்பட்டது.`);
         setShowModal(true);
         setShowDeactivateConfirmModal(false);
       } catch (error) {
@@ -316,8 +344,53 @@ const App = () => {
       }
     }
   };
+  
+  const handleAddScheme = async (newScheme) => {
+    if (db) {
+      try {
+        await addDoc(collection(db, `artifacts/${__app_id}/joinSchemes`), newScheme);
+        setModalMessage('புதிய திட்டம் வெற்றிகரமாகச் சேர்க்கப்பட்டது.');
+        setShowModal(true);
+        setCurrentPage('JoinPlans');
+      } catch (error) {
+        setModalMessage('திட்டத்தைச் சேர்ப்பதில் ஒரு சிக்கல் ஏற்பட்டது.');
+        setShowModal(true);
+        console.error('Error adding scheme:', error);
+      }
+    }
+  };
+  
+  const handleUpdateScheme = async (schemeId, updatedScheme) => {
+    if (db) {
+      try {
+        const schemeRef = doc(db, `artifacts/${__app_id}/joinSchemes`, schemeId);
+        await updateDoc(schemeRef, updatedScheme);
+        setModalMessage('திட்டம் வெற்றிகரமாகப் புதுப்பிக்கப்பட்டது.');
+        setShowModal(true);
+        setCurrentPage('JoinPlans');
+      } catch (error) {
+        setModalMessage('திட்டத்தைப் புதுப்பிப்பதில் ஒரு சிக்கல் ஏற்பட்டது.');
+        setShowModal(true);
+        console.error('Error updating scheme:', error);
+      }
+    }
+  };
 
-  // Login Screen Component
+  const handleDeleteScheme = async (schemeId) => {
+    if (db) {
+      try {
+        await deleteDoc(doc(db, `artifacts/${__app_id}/joinSchemes`, schemeId));
+        setModalMessage('திட்டம் வெற்றிகரமாக நீக்கப்பட்டது.');
+        setShowModal(true);
+        setCurrentPage('JoinPlans');
+      } catch (error) {
+        setModalMessage('திட்டத்தை நீக்குவதில் ஒரு சிக்கல் ஏற்பட்டது.');
+        setShowModal(true);
+        console.error('Error deleting scheme:', error);
+      }
+    }
+  };
+
   const Login = ({ authInstance, setCurrentPage }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -568,10 +641,23 @@ const App = () => {
   };
   
   // JoinPlans Screen Component
-  const JoinPlans = ({ schemes, onJoinPlan }) => {
+  const JoinPlans = ({ schemes, onJoinPlan, onAddScheme, onEditScheme, onDeleteScheme }) => {
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedScheme, setSelectedScheme] = useState(null);
+  
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <h2 className="text-3xl font-bold text-indigo-800 mb-6">திட்டங்களில் சேரவும்</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold text-indigo-800">திட்டங்களில் சேரவும்</h2>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center bg-indigo-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105"
+          >
+            <PlusIcon className="w-5 h-5 mr-2" /> புதிய திட்டம்
+          </button>
+        </div>
+        
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {schemes.map((scheme) => (
             <div key={scheme.id} className="bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between border-2 border-gray-200 hover:border-blue-500 transition-all">
@@ -597,24 +683,132 @@ const App = () => {
                 </div>
                 <p className="text-sm text-gray-500 mt-4">{scheme.description}</p>
               </div>
-              <button
-                onClick={() => onJoinPlan(scheme)}
-                className="mt-6 flex items-center justify-center w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
-              >
-                <PlusIcon className="mr-2" /> சேரவும்
-              </button>
+              <div className="mt-6 flex flex-col sm:flex-row gap-2">
+                <button
+                  onClick={() => onJoinPlan(scheme)}
+                  className="flex-1 flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
+                >
+                  <PlusIcon className="mr-2" /> சேரவும்
+                </button>
+                <div className="flex-1 flex gap-2">
+                  <button
+                    onClick={() => { setSelectedScheme(scheme); setShowEditModal(true); }}
+                    className="flex-1 flex items-center justify-center text-blue-600 py-3 px-4 rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-colors transform hover:scale-105"
+                    title="திட்டத்தைத் திருத்து"
+                  >
+                    <EditIcon />
+                  </button>
+                  <button
+                    onClick={() => onDeleteScheme(scheme.id)}
+                    className="flex-1 flex items-center justify-center text-red-600 py-3 px-4 rounded-xl border-2 border-red-600 hover:bg-red-50 transition-colors transform hover:scale-105"
+                    title="திட்டத்தை நீக்கு"
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
+        </div>
+        {showAddModal && <AddSchemeModal onClose={() => setShowAddModal(false)} onAddScheme={onAddScheme} />}
+        {showEditModal && <EditSchemeModal scheme={selectedScheme} onClose={() => setShowEditModal(false)} onUpdateScheme={onEditScheme} />}
+      </div>
+    );
+  };
+  
+  // AddSchemeModal component
+  const AddSchemeModal = ({ onClose, onAddScheme }) => {
+    const [groupCode, setGroupCode] = useState('');
+    const [monthlyAmount, setMonthlyAmount] = useState('');
+    const [tenure, setTenure] = useState('');
+    const [title, setTitle] = useState('');
+    const [subtitle, setSubtitle] = useState('');
+    const [description, setDescription] = useState('');
+  
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      onAddScheme({
+        groupCode,
+        monthlyAmount: parseFloat(monthlyAmount),
+        tenure: parseInt(tenure),
+        title,
+        subtitle,
+        description,
+        totalAmount: parseFloat(monthlyAmount) * parseInt(tenure),
+      });
+      onClose();
+    };
+  
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full m-4">
+          <h3 className="text-2xl font-bold text-indigo-800 mb-4 text-center">புதிய திட்டம் சேர்</h3>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input type="text" placeholder="திட்டத்தின் தலைப்பு" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="text" placeholder="துணைத் தலைப்பு" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="text" placeholder="குரூப் கோடு" value={groupCode} onChange={(e) => setGroupCode(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="number" placeholder="மாதத் தொகை" value={monthlyAmount} onChange={(e) => setMonthlyAmount(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="number" placeholder="கால அளவு (மாதங்களில்)" value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <textarea placeholder="விளக்கம்" value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
+            <div className="flex gap-4">
+              <button type="button" onClick={onClose} className="flex-1 py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors">ரத்து செய்</button>
+              <button type="submit" className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors">சேர்</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+  
+  // EditSchemeModal component
+  const EditSchemeModal = ({ scheme, onClose, onUpdateScheme }) => {
+    const [groupCode, setGroupCode] = useState(scheme.groupCode);
+    const [monthlyAmount, setMonthlyAmount] = useState(scheme.monthlyAmount);
+    const [tenure, setTenure] = useState(scheme.tenure);
+    const [title, setTitle] = useState(scheme.title);
+    const [subtitle, setSubtitle] = useState(scheme.subtitle);
+    const [description, setDescription] = useState(scheme.description);
+  
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      onUpdateScheme(scheme.id, {
+        groupCode,
+        monthlyAmount: parseFloat(monthlyAmount),
+        tenure: parseInt(tenure),
+        title,
+        subtitle,
+        description,
+        totalAmount: parseFloat(monthlyAmount) * parseInt(tenure),
+      });
+      onClose();
+    };
+  
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full m-4">
+          <h3 className="text-2xl font-bold text-indigo-800 mb-4 text-center">திட்டத்தைத் திருத்து</h3>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input type="text" placeholder="திட்டத்தின் தலைப்பு" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="text" placeholder="துணைத் தலைப்பு" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="text" placeholder="குரூப் கோடு" value={groupCode} onChange={(e) => setGroupCode(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="number" placeholder="மாதத் தொகை" value={monthlyAmount} onChange={(e) => setMonthlyAmount(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="number" placeholder="கால அளவு (மாதங்களில்)" value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <textarea placeholder="விளக்கம்" value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
+            <div className="flex gap-4">
+              <button type="button" onClick={onClose} className="flex-1 py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors">ரத்து செய்</button>
+              <button type="submit" className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors">புதுப்பி</button>
+            </div>
+          </form>
         </div>
       </div>
     );
   };
 
   // UserScreen Component
-  const UserScreen = ({ user, myPlans, userPlans, onToggleUserActive, onLogout, setCurrentPage }) => {
+  const UserScreen = ({ user, myProfile, userPlans, onToggleUserActive, onLogout, setCurrentPage }) => {
     const totalSchemes = userPlans.length;
     const totalDue = userPlans.reduce((sum, plan) => sum + (plan.totalAmount - plan.paidAmount), 0);
-    const activeStatus = myPlans?.active ? 'Active' : 'Deactivated';
+    const activeStatus = myProfile?.active ? 'Active' : 'Deactivated';
 
     return (
       <div className="p-4 sm:p-6 lg:p-8">
@@ -624,22 +818,22 @@ const App = () => {
             <div className="flex items-center space-x-4">
               <img src="https://picsum.photos/seed/useravatar/100/100" alt="Avatar" className="w-16 h-16 rounded-full" />
               <div>
-                <h3 className="text-2xl font-bold text-gray-900">{myPlans?.name || 'பெயர் இல்லை'}</h3>
+                <h3 className="text-2xl font-bold text-gray-900">{myProfile?.name || 'பெயர் இல்லை'}</h3>
                 <p className="text-gray-500">
-                  {myPlans?.email || user?.email || 'மின்னஞ்சல் இல்லை'}
+                  {myProfile?.email || user?.email || 'மின்னஞ்சல் இல்லை'}
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${myPlans?.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${myProfile?.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                 {activeStatus}
               </span>
               <button
-                onClick={() => onToggleUserActive()}
-                className={`p-2 rounded-full text-white transition-colors transform hover:scale-110 ${myPlans?.active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
-                title={myPlans?.active ? 'பயனரை செயலிழக்கச் செய்' : 'பயனரை செயல்படுத்து'}
+                onClick={() => onToggleUserActive(userId, myProfile.active)}
+                className={`p-2 rounded-full text-white transition-colors transform hover:scale-110 ${myProfile?.active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
+                title={myProfile?.active ? 'பயனரை செயலிழக்கச் செய்' : 'பயனரை செயல்படுத்து'}
               >
-                {myPlans?.active ? <TrashIcon className="w-5 h-5" /> : <PlusIcon className="w-5 h-5" />}
+                {myProfile?.active ? <TrashIcon className="w-5 h-5" /> : <PlusIcon className="w-5 h-5" />}
               </button>
             </div>
           </div>
@@ -649,7 +843,7 @@ const App = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <p className="text-sm font-medium text-gray-500">மொபைல்</p>
-              <p className="mt-1 text-gray-900">{myPlans?.mobile || 'தகவல் இல்லை'}</p>
+              <p className="mt-1 text-gray-900">{myProfile?.mobile || 'தகவல் இல்லை'}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">திட்டங்களின் எண்ணிக்கை</p>
@@ -680,9 +874,9 @@ const App = () => {
   };
   
   // EditUserScreen Component
-  const EditUserScreen = ({ myPlans, onEditProfile, setCurrentPage }) => {
-    const [name, setName] = useState(myPlans?.name || '');
-    const [mobile, setMobile] = useState(myPlans?.mobile || '');
+  const EditUserScreen = ({ myProfile, onEditProfile, setCurrentPage }) => {
+    const [name, setName] = useState(myProfile?.name || '');
+    const [mobile, setMobile] = useState(myProfile?.mobile || '');
 
     const handleSubmit = (e) => {
       e.preventDefault();
@@ -733,6 +927,48 @@ const App = () => {
     );
   };
 
+  // AllUsersScreen Component
+  const AllUsersScreen = ({ allUsers, onToggleUserActive }) => {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <h2 className="text-3xl font-bold text-indigo-800 mb-6">அனைத்து பயனர்கள்</h2>
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <ul className="divide-y divide-gray-200">
+            {allUsers.length > 0 ? (
+              allUsers.map((user) => (
+                <li key={user.userId} className="p-4 sm:p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center space-x-4">
+                    <img src="https://picsum.photos/seed/useravatar/100/100" alt="Avatar" className="w-12 h-12 rounded-full" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
+                      <p className="text-gray-500 text-sm">{user.email}</p>
+                      <p className="text-gray-500 text-xs">ID: {user.userId}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {user.active ? 'செயலில்' : 'செயலற்றது'}
+                    </span>
+                    <button
+                      onClick={() => onToggleUserActive(user.userId, user.active)}
+                      className={`p-2 rounded-full text-white transition-colors transform hover:scale-110 ${user.active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
+                      title={user.active ? 'பயனரை செயலிழக்கச் செய்' : 'பயனரை செயல்படுத்து'}
+                    >
+                      {user.active ? <TrashIcon className="w-5 h-5" /> : <PlusIcon className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </li>
+              ))
+            ) : (
+              <li className="p-6 text-center text-gray-500 text-lg">பயனர்கள் யாரும் இல்லை.</li>
+            )}
+          </ul>
+        </div>
+      </div>
+    );
+  };
+  
+
   // Deactivate Confirmation Modal
   const DeactivateConfirmModal = ({ onClose, onConfirm }) => {
     return (
@@ -740,7 +976,7 @@ const App = () => {
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full">
           <h3 className="text-xl font-bold text-red-600 text-center mb-4">உறுதிப்படுத்தல் தேவை</h3>
           <p className="text-gray-800 text-center mb-6">
-            உங்கள் கணக்கை செயலிழக்கச் செய்ய நீங்கள் உறுதியாக உள்ளீர்களா?
+            இந்த பயனர் கணக்கை செயலிழக்கச் செய்ய நீங்கள் உறுதியாக உள்ளீர்களா?
           </p>
           <div className="flex gap-4">
             <button
@@ -847,146 +1083,115 @@ const App = () => {
     }
   }
 
-  // Main application layout
+  const isAdmin = myProfile?.role === 'admin';
+
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
-      {/* Sidebar for Navigation */}
 
-      {/* Main Content Area */}
+
       <main className="flex flex-row">
-        <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
-          <div className="p-6 md:flex flex-col h-full hidden">
-            <div className="flex items-center justify-center mb-8">
-              <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
-            </div>
-            <ul className="space-y-2 flex-grow">
-              <li>
-                <button
-                  onClick={() => setCurrentPage("MyPlans")}
-                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                    currentPage === "MyPlans"
-                      ? "bg-indigo-50 text-indigo-800 font-semibold"
-                      : "text-gray-600"
-                  }`}
-                >
-                  <WalletIcon className="mr-3" />
-                  எனது திட்டங்கள்
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setCurrentPage("JoinPlans")}
-                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                    currentPage === "JoinPlans"
-                      ? "bg-indigo-50 text-indigo-800 font-semibold"
-                      : "text-gray-600"
-                  }`}
-                >
-                  <PlusIcon className="mr-3" />
-                  புதிய திட்டத்தில் சேரவும்
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setCurrentPage("UserScreen")}
-                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                    currentPage === "UserScreen"
-                      ? "bg-indigo-50 text-indigo-800 font-semibold"
-                      : "text-gray-600"
-                  }`}
-                >
-                  <UserIcon className="mr-3" />
-                  சுயவிவரம்
-                </button>
-              </li>
-            </ul>
-            <div className="mt-8">
+              <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
+        <div className="p-6 md:flex flex-col h-full hidden">
+          <div className="flex items-center justify-center mb-8">
+            <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
+          </div>
+          <ul className="space-y-2 flex-grow">
+            <li>
               <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
+                onClick={() => setCurrentPage('MyPlans')}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'MyPlans' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
               >
-                <LogOutIcon className="mr-2" />
-                வெளியேறு
+                <WalletIcon className="mr-3" />
+                எனது திட்டங்கள்
               </button>
-            </div>
+            </li>
+            <li>
+              <button
+                onClick={() => setCurrentPage('JoinPlans')}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'JoinPlans' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
+              >
+                <PlusIcon className="mr-3" />
+                திட்டங்கள்
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setCurrentPage('UserScreen')}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'UserScreen' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
+              >
+                <UserIcon className="mr-3" />
+                சுயவிவரம்
+              </button>
+            </li>
+            {isAdmin && (
+              <li>
+                <button
+                  onClick={() => setCurrentPage('AllUsersScreen')}
+                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'AllUsersScreen' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
+                >
+                  <UsersIcon className="mr-3" />
+                  அனைத்து பயனர்கள்
+                </button>
+              </li>
+            )}
+          </ul>
+          <div className="mt-8">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
+            >
+              <LogOutIcon className="mr-2" />
+              வெளியேறு
+            </button>
           </div>
-          {/* Mobile Navigation */}
-          <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
+        </div>
+        <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
+          <button
+            onClick={() => setCurrentPage('MyPlans')}
+            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'MyPlans' ? 'text-indigo-800' : 'text-gray-500'}`}
+          >
+            <WalletIcon />
+            <span className="text-xs">திட்டங்கள்</span>
+          </button>
+          <button
+            onClick={() => setCurrentPage('JoinPlans')}
+            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'JoinPlans' ? 'text-indigo-800' : 'text-gray-500'}`}
+          >
+            <PlusIcon />
+            <span className="text-xs">சேரவும்</span>
+          </button>
+          <button
+            onClick={() => setCurrentPage('UserScreen')}
+            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'UserScreen' ? 'text-indigo-800' : 'text-gray-500'}`}
+          >
+            <UserIcon />
+            <span className="text-xs">சுயவிவரம்</span>
+          </button>
+          {isAdmin && (
             <button
-              onClick={() => setCurrentPage("MyPlans")}
-              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                currentPage === "MyPlans" ? "text-indigo-800" : "text-gray-500"
-              }`}
+              onClick={() => setCurrentPage('AllUsersScreen')}
+              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'AllUsersScreen' ? 'text-indigo-800' : 'text-gray-500'}`}
             >
-              <WalletIcon />
-              <span className="text-xs">திட்டங்கள்</span>
+              <UsersIcon />
+              <span className="text-xs">பயனர்கள்</span>
             </button>
-            <button
-              onClick={() => setCurrentPage("JoinPlans")}
-              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                currentPage === "JoinPlans"
-                  ? "text-indigo-800"
-                  : "text-gray-500"
-              }`}
-            >
-              <PlusIcon />
-              <span className="text-xs">சேரவும்</span>
-            </button>
-            <button
-              onClick={() => setCurrentPage("UserScreen")}
-              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                currentPage === "UserScreen"
-                  ? "text-indigo-800"
-                  : "text-gray-500"
-              }`}
-            >
-              <UserIcon />
-              <span className="text-xs">சுயவிவரம்</span>
-            </button>
-          </div>
-        </nav>
+          )}
+        </div>
+      </nav>
         <div className="container mx-auto">
-          {currentPage === "MyPlans" && (
-            <MyPlans
-              userPlans={userPlans}
-              onPaymentClick={(plan) => {
-                setSelectedPlanForPayment(plan);
-                setShowPaymentModal(true);
-              }}
-            />
-          )}
-          {currentPage === "JoinPlans" && (
-            <JoinPlans schemes={schemes} onJoinPlan={handleJoinPlan} />
-          )}
-          {currentPage === "UserScreen" && (
-            <UserScreen
-              user={user}
-              myPlans={myPlans}
-              userPlans={userPlans}
-              onToggleUserActive={() => setShowDeactivateConfirmModal(true)}
-              onLogout={handleLogout}
-              setCurrentPage={setCurrentPage}
-            />
-          )}
-          {currentPage === "EditUserScreen" && (
-            <EditUserScreen
-              myPlans={myPlans}
-              onEditProfile={handleEditProfile}
-              setCurrentPage={setCurrentPage}
-            />
-          )}
+          {currentPage === 'MyPlans' && <MyPlans userPlans={userPlans} onPaymentClick={(plan) => {setSelectedPlanForPayment(plan); setShowPaymentModal(true);}} />}
+          {currentPage === 'JoinPlans' && <JoinPlans schemes={schemes} onJoinPlan={handleJoinPlan} onAddScheme={handleAddScheme} onEditScheme={handleUpdateScheme} onDeleteScheme={handleDeleteScheme} />}
+          {currentPage === 'UserScreen' && <UserScreen user={user} myProfile={myProfile} userPlans={userPlans} onToggleUserActive={(id, status) => { setUserToDeactivate({ id, status }); setShowDeactivateConfirmModal(true); }} onLogout={handleLogout} setCurrentPage={setCurrentPage} />}
+          {currentPage === 'EditUserScreen' && <EditUserScreen myProfile={myProfile} onEditProfile={handleEditProfile} setCurrentPage={setCurrentPage} />}
+          {currentPage === 'AllUsersScreen' && isAdmin && <AllUsersScreen allUsers={allUsers} onToggleUserActive={(id, status) => { setUserToDeactivate({ id, status }); setShowDeactivateConfirmModal(true); }} />}
+          {currentPage === 'AllUsersScreen' && !isAdmin && <div className="p-6 text-center text-gray-500 text-lg">இந்த பக்கத்தை அணுக உங்களுக்கு அனுமதி இல்லை.</div>}
         </div>
       </main>
 
-      {/* Payment Modal */}
       {showPaymentModal && (
         <PaymentModal
           plan={selectedPlanForPayment}
-          onClose={() => {
-            setShowPaymentModal(false);
-            setPaymentAmount("");
-            setPaymentReference("");
-          }}
+          onClose={() => {setShowPaymentModal(false); setPaymentAmount(''); setPaymentReference('');}}
           onAddPayment={handleAddPayment}
           paymentAmount={paymentAmount}
           setPaymentAmount={setPaymentAmount}
@@ -995,21 +1200,14 @@ const App = () => {
         />
       )}
 
-      {/* Deactivate Confirmation Modal */}
       {showDeactivateConfirmModal && (
-        <DeactivateConfirmModal
+        <DeactivateConfirmModal 
           onClose={() => setShowDeactivateConfirmModal(false)}
-          onConfirm={handleToggleUserActive}
+          onConfirm={() => handleToggleUserActive(userToDeactivate.id, userToDeactivate.status)}
         />
       )}
 
-      {/* General Message Modal */}
-      {showModal && (
-        <MessageModal
-          message={modalMessage}
-          onClose={() => setShowModal(false)}
-        />
-      )}
+      {showModal && <MessageModal message={modalMessage} onClose={() => setShowModal(false)} />}
     </div>
   );
 };
