@@ -81,7 +81,7 @@
   "inactive": "Inactive",
   "no_users_message": "No users found.",
   "confirm_title": "Confirmation Required",
-  "confirm_deactivate_message": "Are you sure you want to deactivate this user account?",
+  "confirm_deactivate_message": "Are you sure you want to {{status}} this user account?",
   "confirm": "Confirm",
   "ok": "OK",
   "pay_modal_title": "Make Payment",
