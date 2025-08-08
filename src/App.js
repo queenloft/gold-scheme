@@ -927,6 +927,17 @@ const App = () => {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('user_profile')}</h2>
+                             <div className="flex items-center justify-between mb-8">
+            <select
+              value={i18n.language}
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="border rounded p-1"
+            >
+              <option value="ta">{t('tamil')}</option>
+              <option value="en">{t('english')}</option>
+            </select>
+          </div>
+
         <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -1305,17 +1316,30 @@ const App = () => {
                 </li>
               )}
             </ul>
+
+                        <div className=" p-2 bg-white border-b-2 border-gray-200 flex justify-end">
+          <select
+            value={i18n.language}
+            onChange={(e) => changeLanguage(e.target.value)}
+            className="border rounded p-1"
+          >
+            <option value="ta">{t('tamil')}</option>
+            <option value="en">{t('english')}</option>
+          </select>
+        </div>
             <div className="mt-8">
+              
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
               >
-                <LogOutIcon className="mr-2" />
+                <LogOutIcon className="mr-2" /> {" "}
                 {t("logout")}
               </button>
             </div>
           </div>
           <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
+
             <button
               onClick={() => setCurrentPage("Dashboard")}
               className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
@@ -1334,7 +1358,7 @@ const App = () => {
                 currentPage === "MyPlans" ? "text-indigo-800" : "text-gray-500"
               }`}
             >
-              <WalletIcon />
+              <WalletIcon /> {" "}
               <span className="text-xs">{t("plans_nav")}</span>
             </button>
             )
@@ -1347,7 +1371,7 @@ const App = () => {
                   : "text-gray-500"
               }`}
             >
-              <PlusIcon />
+              <PlusIcon /> {" "}
               <span className="text-xs">{t("join_nav")}</span>
             </button>
             <button
@@ -1358,7 +1382,7 @@ const App = () => {
                   : "text-gray-500"
               }`}
             >
-              <UserIcon />
+              <UserIcon /> {" "}
               <span className="text-xs">{t("profile_nav")}</span>
             </button>
             {isAdmin && (
@@ -1370,7 +1394,7 @@ const App = () => {
                     : "text-gray-500"
                 }`}
               >
-                <UsersIcon />
+                <UsersIcon /> {" "}
                 <span className="text-xs">{t("users_nav")}</span>
               </button>
             )}
