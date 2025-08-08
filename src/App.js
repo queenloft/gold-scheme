@@ -64,7 +64,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
-  const [currentPage, setCurrentPage] = useState('MyPlans');
+  const [currentPage, setCurrentPage] = useState('JoinPlans');
   const [myProfile, setMyProfile] = useState(null); 
   const [userPlans, setUserPlans] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
@@ -160,10 +160,11 @@ const App = () => {
 
   useEffect(() => {
     if (db) {
+      console.log(__app_id)
       const qSchemes = query(collection(db, `artifacts/${__app_id}/joinSchemes`));
       const unsubscribeSchemes = onSnapshot(qSchemes, (snapshot) => {
         const schemeList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setSchemes(schemeList);
+        setSchemes([...schemeList]);
       });
       return () => unsubscribeSchemes();
     }
@@ -342,7 +343,7 @@ const App = () => {
       } catch (error) {
         setModalMessage(t('user_status_change_fail'));
         setShowModal(true);
-        console.error('Error toggling user active status:', error);
+        console.log('Error toggling user active status:', error);
       }
     }
   };
@@ -643,7 +644,7 @@ const App = () => {
   };
   
   // JoinPlans Screen Component
-  const JoinPlans = ({ schemes, onJoinPlan, onAddScheme, onEditScheme, onDeleteScheme }) => {
+  const JoinPlans = ({ schemes, onJoinPlan, onAddScheme, onEditScheme, onDeleteScheme, isAdmin }) => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedScheme, setSelectedScheme] = useState(null);
@@ -659,10 +660,13 @@ const App = () => {
             <PlusIcon className="w-5 h-5 mr-2" /> {t('new_scheme')}
           </button>
         </div>
-        
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {schemes.map((scheme) => (
-            <div key={scheme.id} className="bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between border-2 border-gray-200 hover:border-blue-500 transition-all">
+            <div
+              key={scheme.id}
+              className="bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between border-2 border-gray-200 hover:border-blue-500 transition-all"
+            >
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                   <GoldIcon /> {scheme.title}
@@ -683,10 +687,14 @@ const App = () => {
                     <span className="font-medium">{t('total_amount')}</span> {formatCurrency(scheme.totalAmount)}
                   </p>
                 </div>
-                <p className="text-sm text-gray-500 mt-4">{scheme.description}</p>
+                <p className="text-sm text-gray-500 mt-4">
+                  {scheme.description}
+                </p>
               </div>
               <div className="mt-6 flex flex-col sm:flex-row gap-2">
-                <button
+                {
+                  !isAdmin && (
+                                    <button
                   onClick={() => onJoinPlan(scheme)}
                   className="flex-1 flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
                 >
@@ -712,8 +720,19 @@ const App = () => {
             </div>
           ))}
         </div>
-        {showAddModal && <AddSchemeModal onClose={() => setShowAddModal(false)} onAddScheme={onAddScheme} />}
-        {showEditModal && <EditSchemeModal scheme={selectedScheme} onClose={() => setShowEditModal(false)} onUpdateScheme={onEditScheme} />}
+        {showAddModal && (
+          <AddSchemeModal
+            onClose={() => setShowAddModal(false)}
+            onAddScheme={onAddScheme}
+          />
+        )}
+        {showEditModal && (
+          <EditSchemeModal
+            scheme={selectedScheme}
+            onClose={() => setShowEditModal(false)}
+            onUpdateScheme={onEditScheme}
+          />
+        )}
       </div>
     );
   };
@@ -972,7 +991,8 @@ const App = () => {
   
 
   // Deactivate Confirmation Modal
-  const DeactivateConfirmModal = ({ onClose, onConfirm }) => {
+  const DeactivateConfirmModal = ({ onClose, onConfirm, currentStatus }) => {
+    console.log('DeactivateConfirmModal', currentStatus)
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full">
@@ -1078,10 +1098,34 @@ const App = () => {
   // Display Login/Register page if user is not authenticated
   if (!user) {
     switch (currentPage) {
-      case 'Register':
-        return <RegisterScreen onRegister={handleRegister} setCurrentPage={setCurrentPage} />;
+      case "Register":
+        return (
+          <>
+            {showModal && (
+              <MessageModal
+                message={modalMessage}
+                onClose={() => setShowModal(false)}
+              />
+            )}
+
+            <RegisterScreen
+              onRegister={handleRegister}
+              setCurrentPage={setCurrentPage}
+            />
+          </>
+        );
       default:
-        return <Login authInstance={auth} setCurrentPage={setCurrentPage} />;
+        return (
+        <>
+          {showModal && (
+            <MessageModal
+              message={modalMessage}
+              onClose={() => setShowModal(false)}
+            />
+          )}
+
+          <Login authInstance={auth} setCurrentPage={setCurrentPage} />
+        </>);
     }
   }
 
@@ -1089,8 +1133,6 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
-
-
       <main className="flex flex-row">
               <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
         <div className="p-6 md:flex flex-col h-full hidden">
@@ -1193,7 +1235,11 @@ const App = () => {
       {showPaymentModal && (
         <PaymentModal
           plan={selectedPlanForPayment}
-          onClose={() => {setShowPaymentModal(false); setPaymentAmount(''); setPaymentReference('');}}
+          onClose={() => {
+            setShowPaymentModal(false);
+            setPaymentAmount("");
+            setPaymentReference("");
+          }}
           onAddPayment={handleAddPayment}
           paymentAmount={paymentAmount}
           setPaymentAmount={setPaymentAmount}
@@ -1203,13 +1249,21 @@ const App = () => {
       )}
 
       {showDeactivateConfirmModal && (
-        <DeactivateConfirmModal 
+        <DeactivateConfirmModal
           onClose={() => setShowDeactivateConfirmModal(false)}
-          onConfirm={() => handleToggleUserActive(userToDeactivate.id, userToDeactivate.status)}
+          currentStatus={userToDeactivate.status}
+          onConfirm={() =>
+            handleToggleUserActive(userToDeactivate.id, userToDeactivate.status)
+          }
         />
       )}
 
-      {showModal && <MessageModal message={modalMessage} onClose={() => setShowModal(false)} />}
+      {showModal && (
+        <MessageModal
+          message={modalMessage}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };
