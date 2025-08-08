@@ -78,7 +78,11 @@ const App = () => {
   const [showDeactivateConfirmModal, setShowDeactivateConfirmModal] = useState(false);
   const [userToDeactivate, setUserToDeactivate] = useState(null);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('language', lng);
+  };
   const __app_id = firebaseConfig.projectId;
 
   useEffect(() => {
@@ -435,6 +439,16 @@ const App = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+          <div className="flex justify-end mb-4">
+            <select
+              value={i18n.language}
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="border rounded p-1"
+            >
+              <option value="ta">{t('tamil')}</option>
+              <option value="en">{t('english')}</option>
+            </select>
+          </div>
           <h2 className="text-3xl font-bold text-center text-indigo-800 mb-6">{t('login_title')}</h2>
           <div className="grid grid-cols-1 gap-6">
             <form onSubmit={handleLogin} className="space-y-4">

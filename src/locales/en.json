@@ -99,5 +99,8 @@
   "plans_nav": "Plans",
   "join_nav": "Join",
   "profile_nav": "Profile",
-  "users_nav": "Users"
+  "users_nav": "Users",
+  "language": "Language",
+  "english": "English",
+  "tamil": "Tamil"
 }
