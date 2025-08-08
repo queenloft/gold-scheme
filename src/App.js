@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
@@ -77,6 +78,7 @@ const App = () => {
   const [showDeactivateConfirmModal, setShowDeactivateConfirmModal] = useState(false);
   const [userToDeactivate, setUserToDeactivate] = useState(null);
 
+  const { t } = useTranslation();
   const __app_id = firebaseConfig.projectId;
 
   useEffect(() => {
@@ -139,9 +141,9 @@ const App = () => {
           setMyProfile(docSnap.data());
         } else {
           setDoc(userDocRef, {
-            name: user?.displayName || 'புதிய பயனர்',
-            email: user?.email || 'மின்னஞ்சல் இல்லை',
-            mobile: 'தகவல் இல்லை',
+            name: user?.displayName || t('new_user'),
+            email: user?.email || t('email_not_available'),
+            mobile: t('info_not_available'),
             active: true,
             role: 'user', // Default role for new users
             created_at: new Date().toISOString(),
@@ -202,11 +204,11 @@ const App = () => {
         userId: newUserId,
       });
 
-      setModalMessage('பதிவு வெற்றிகரமாக முடிந்தது!');
+      setModalMessage(t('registration_success'));
       setShowModal(true);
       setCurrentPage('Login');
     } catch (error) {
-      setModalMessage(`பதிவு தோல்வியடைந்தது: ${error.message}`);
+      setModalMessage(t('registration_failed', { message: error.message }));
       setShowModal(true);
       console.error('Registration failed:', error);
     }
@@ -229,11 +231,11 @@ const App = () => {
           mobile: updatedMobile,
         });
 
-        setModalMessage('சுயவிவரம் வெற்றிகரமாக புதுப்பிக்கப்பட்டது!');
+        setModalMessage(t('profile_update_success'));
         setShowModal(true);
         setCurrentPage('UserScreen');
       } catch (error) {
-        setModalMessage('சுயவிவரம் புதுப்பித்தலில் ஒரு சிக்கல் ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.');
+        setModalMessage(t('profile_update_fail'));
         setShowModal(true);
         console.error('Error updating profile:', error);
       }
@@ -270,11 +272,11 @@ const App = () => {
           status: 'Active',
           maturityDate: new Date(new Date().setMonth(new Date().getMonth() + scheme.tenure)).toISOString(),
         });
-        setModalMessage(`${scheme.title} திட்டத்தில் நீங்கள் வெற்றிகரமாக சேர்ந்துவிட்டீர்கள்!`);
+        setModalMessage(t('join_plan_success', { title: scheme.title }));
         setShowModal(true);
         setCurrentPage('MyPlans');
       } catch (error) {
-        setModalMessage('திட்டத்தில் சேருவதில் ஒரு சிக்கல் ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.');
+        setModalMessage(t('join_plan_fail'));
         setShowModal(true);
         console.error('Error joining plan:', error);
       }
@@ -286,7 +288,7 @@ const App = () => {
       try {
         const amount = parseFloat(paymentAmount);
         if (isNaN(amount) || amount <= 0) {
-          setModalMessage('தயவுசெய்து சரியான தொகையை உள்ளிடவும்.');
+          setModalMessage(t('enter_valid_amount'));
           setShowModal(true);
           return;
         }
@@ -312,12 +314,12 @@ const App = () => {
         });
 
         setShowPaymentModal(false);
-        setModalMessage(`₹${amount} தொகை வெற்றிகரமாகச் செலுத்தப்பட்டது!`);
+        setModalMessage(t('payment_success', { amount: amount }));
         setShowModal(true);
         setPaymentAmount('');
         setPaymentReference('');
       } catch (error) {
-        setModalMessage('பணம் செலுத்துவதில் ஒரு சிக்கல் ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.');
+        setModalMessage(t('payment_fail'));
         setShowModal(true);
         console.error('Error adding payment:', error);
       }
@@ -335,11 +337,11 @@ const App = () => {
         await updateDoc(publicUserDocRef, {
           active: !currentStatus,
         });
-        setModalMessage(`பயனர் நிலை '${currentStatus ? 'செயலற்றது' : 'செயலில்'}' என மாற்றப்பட்டது.`);
+        setModalMessage(t('user_status_change_success', { status: t(currentStatus ? 'inactive' : 'active') }));
         setShowModal(true);
         setShowDeactivateConfirmModal(false);
       } catch (error) {
-        setModalMessage('பயனர் நிலையை மாற்றுவதில் ஒரு சிக்கல் ஏற்பட்டது.');
+        setModalMessage(t('user_status_change_fail'));
         setShowModal(true);
         console.log('Error toggling user active status:', error);
       }
@@ -350,11 +352,11 @@ const App = () => {
     if (db) {
       try {
         await addDoc(collection(db, `artifacts/${__app_id}/joinSchemes`), newScheme);
-        setModalMessage('புதிய திட்டம் வெற்றிகரமாகச் சேர்க்கப்பட்டது.');
+        setModalMessage(t('add_scheme_success'));
         setShowModal(true);
         setCurrentPage('JoinPlans');
       } catch (error) {
-        setModalMessage('திட்டத்தைச் சேர்ப்பதில் ஒரு சிக்கல் ஏற்பட்டது.');
+        setModalMessage(t('add_scheme_fail'));
         setShowModal(true);
         console.error('Error adding scheme:', error);
       }
@@ -366,11 +368,11 @@ const App = () => {
       try {
         const schemeRef = doc(db, `artifacts/${__app_id}/joinSchemes`, schemeId);
         await updateDoc(schemeRef, updatedScheme);
-        setModalMessage('திட்டம் வெற்றிகரமாகப் புதுப்பிக்கப்பட்டது.');
+        setModalMessage(t('update_scheme_success'));
         setShowModal(true);
         setCurrentPage('JoinPlans');
       } catch (error) {
-        setModalMessage('திட்டத்தைப் புதுப்பிப்பதில் ஒரு சிக்கல் ஏற்பட்டது.');
+        setModalMessage(t('update_scheme_fail'));
         setShowModal(true);
         console.error('Error updating scheme:', error);
       }
@@ -381,11 +383,11 @@ const App = () => {
     if (db) {
       try {
         await deleteDoc(doc(db, `artifacts/${__app_id}/joinSchemes`, schemeId));
-        setModalMessage('திட்டம் வெற்றிகரமாக நீக்கப்பட்டது.');
+        setModalMessage(t('delete_scheme_success'));
         setShowModal(true);
         setCurrentPage('JoinPlans');
       } catch (error) {
-        setModalMessage('திட்டத்தை நீக்குவதில் ஒரு சிக்கல் ஏற்பட்டது.');
+        setModalMessage(t('delete_scheme_fail'));
         setShowModal(true);
         console.error('Error deleting scheme:', error);
       }
@@ -402,10 +404,10 @@ const App = () => {
       e.preventDefault();
       try {
         await signInWithEmailAndPassword(authInstance, email, password);
-        setModalMessage('உள்நுழைவு வெற்றிகரம்!');
+        setModalMessage(t('login_success'));
         setShowModal(true);
       } catch (error) {
-        setModalMessage('உள்நுழைவு தோல்வியடைந்தது. சரியான மின்னஞ்சல் மற்றும் கடவுச்சொல்லை உள்ளிடவும்.');
+        setModalMessage(t('login_fail'));
         setShowModal(true);
         console.error('Login failed:', error);
       }
@@ -421,10 +423,10 @@ const App = () => {
         await sendSignInLinkToEmail(authInstance, otpEmail, actionCodeSettings);
         window.localStorage.setItem('emailForSignIn', otpEmail);
         setIsOtpSent(true);
-        setModalMessage('உள்நுழைவு இணைப்பு உங்கள் மின்னஞ்சலுக்கு அனுப்பப்பட்டுள்ளது. தயவுசெய்து உங்கள் இன்பாக்ஸைச் சரிபார்க்கவும்.');
+        setModalMessage(t('login_link_sent'));
         setShowModal(true);
       } catch (error) {
-        setModalMessage('OTP அனுப்புவதில் ஒரு சிக்கல் ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.');
+        setModalMessage(t('otp_send_fail'));
         setShowModal(true);
         console.error('OTP send failed:', error);
       }
@@ -433,11 +435,11 @@ const App = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-center text-indigo-800 mb-6">உள்நுழையவும்</h2>
+          <h2 className="text-3xl font-bold text-center text-indigo-800 mb-6">{t('login_title')}</h2>
           <div className="grid grid-cols-1 gap-6">
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">மின்னஞ்சல்</label>
+                <label className="block text-sm font-medium text-gray-700">{t('email_label')}</label>
                 <input
                   type="email"
                   value={email}
@@ -447,7 +449,7 @@ const App = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">கடவுச்சொல்</label>
+                <label className="block text-sm font-medium text-gray-700">{t('password_label')}</label>
                 <input
                   type="password"
                   value={password}
@@ -460,19 +462,19 @@ const App = () => {
                 type="submit"
                 className="w-full bg-indigo-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105"
               >
-                மின்னஞ்சல் மற்றும் கடவுச்சொல் மூலம் உள்நுழையவும்
+                {t('login_with_email')}
               </button>
             </form>
             
             <div className="flex items-center justify-between text-gray-500 my-4">
               <hr className="flex-grow border-t-2 border-gray-200" />
-              <span className="mx-4">அல்லது</span>
+              <span className="mx-4">{t('or')}</span>
               <hr className="flex-grow border-t-2 border-gray-200" />
             </div>
 
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">OTP க்கு மின்னஞ்சல்</label>
+                <label className="block text-sm font-medium text-gray-700">{t('otp_email_label')}</label>
                 <input
                   type="email"
                   value={otpEmail}
@@ -485,16 +487,16 @@ const App = () => {
                 type="submit"
                 className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
               >
-                OTP யை மின்னஞ்சலுக்கு அனுப்பவும்
+                {t('send_otp_email')}
               </button>
-              {isOtpSent && <p className="text-center text-sm text-green-600 mt-2">உங்கள் மின்னஞ்சலைச் சரிபார்க்கவும்!</p>}
+              {isOtpSent && <p className="text-center text-sm text-green-600 mt-2">{t('check_email')}</p>}
             </form>
 
             <button
               onClick={() => setCurrentPage('Register')}
               className="mt-4 w-full text-indigo-600 py-3 px-4 rounded-xl border-2 border-indigo-600 hover:bg-indigo-50 transition-colors transform hover:scale-105"
             >
-              புதிய பயனர் கணக்கு உருவாக்கவும்
+              {t('create_new_account')}
             </button>
           </div>
         </div>
@@ -517,10 +519,10 @@ const App = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-center text-indigo-800 mb-6">புதிய பயனர் பதிவு</h2>
+          <h2 className="text-3xl font-bold text-center text-indigo-800 mb-6">{t('register_new_user')}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">பெயர்</label>
+              <label className="block text-sm font-medium text-gray-700">{t('name_label')}</label>
               <input
                 type="text"
                 value={name}
@@ -530,7 +532,7 @@ const App = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">மின்னஞ்சல்</label>
+              <label className="block text-sm font-medium text-gray-700">{t('email_label')}</label>
               <input
                 type="email"
                 value={email}
@@ -540,7 +542,7 @@ const App = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">கடவுச்சொல்</label>
+              <label className="block text-sm font-medium text-gray-700">{t('password_label')}</label>
               <input
                 type="password"
                 value={password}
@@ -550,7 +552,7 @@ const App = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">மொபைல்</label>
+              <label className="block text-sm font-medium text-gray-700">{t('mobile_label')}</label>
               <input
                 type="tel"
                 value={mobile}
@@ -563,14 +565,14 @@ const App = () => {
               type="submit"
               className="w-full bg-indigo-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105"
             >
-              பதிவு
+              {t('register')}
             </button>
             <button
               type="button"
               onClick={() => setCurrentPage('Login')}
               className="mt-4 w-full text-indigo-600 py-3 px-4 rounded-xl border-2 border-indigo-600 hover:bg-indigo-50 transition-colors transform hover:scale-105"
             >
-              உள்நுழைவுக்குத் திரும்பவும்
+              {t('back_to_login')}
             </button>
           </form>
         </div>
@@ -582,7 +584,7 @@ const App = () => {
   const MyPlans = ({ userPlans, onPaymentClick }) => {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <h2 className="text-3xl font-bold text-indigo-800 mb-6">எனது திட்டங்கள்</h2>
+        <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('my_plans')}</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {userPlans.length > 0 ? (
             userPlans.map((plan) => {
@@ -599,19 +601,19 @@ const App = () => {
                     <hr className="my-4" />
                     <div className="space-y-2 text-gray-700">
                       <p>
-                        <span className="font-medium">சேர்ந்த தேதி:</span> {new Date(plan.joinDate).toLocaleDateString('ta-IN')}
+                        <span className="font-medium">{t('joined_date')}</span> {new Date(plan.joinDate).toLocaleDateString('ta-IN')}
                       </p>
                       <p>
-                        <span className="font-medium">மொத்தத் தொகை:</span> {formatCurrency(plan.totalAmount)}
+                        <span className="font-medium">{t('total_amount')}</span> {formatCurrency(plan.totalAmount)}
                       </p>
                       <p>
-                        <span className="font-medium">செலுத்திய தொகை:</span> {formatCurrency(plan.paidAmount)}
+                        <span className="font-medium">{t('paid_amount')}</span> {formatCurrency(plan.paidAmount)}
                       </p>
                       <p>
-                        <span className="font-medium">மீதமுள்ள தொகை:</span> {formatCurrency(dueAmount)}
+                        <span className="font-medium">{t('due_amount')}</span> {formatCurrency(dueAmount)}
                       </p>
                       <p className="font-bold text-red-600">
-                        <span className="font-medium text-gray-700">பாக்கி விவரங்கள்:</span> {plan.tenure - Math.floor(monthsPaid)} மாதங்கள் பாக்கி
+                        <span className="font-medium text-gray-700">{t('due_details')}</span> {t('months_remaining', { count: plan.tenure - Math.floor(monthsPaid) })}
                       </p>
                     </div>
                     <div className="mt-4">
@@ -621,20 +623,20 @@ const App = () => {
                           style={{ width: `${plan.progress > 100 ? 100 : plan.progress}%` }}
                         ></div>
                       </div>
-                      <p className="text-right text-sm text-gray-500 mt-1">{plan.progress.toFixed(2)}% நிறைவடைந்தது</p>
+                      <p className="text-right text-sm text-gray-500 mt-1">{t('progress_completed', { progress: plan.progress.toFixed(2) })}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => onPaymentClick(plan)}
                     className="mt-6 flex items-center justify-center w-full bg-green-500 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-green-600 transition-colors transform hover:scale-105"
                   >
-                    <CreditCardIcon className="mr-2" /> பணம் செலுத்து
+                    <CreditCardIcon className="mr-2" /> {t('pay')}
                   </button>
                 </div>
               );
             })
           ) : (
-            <p className="text-center text-gray-500 text-lg col-span-3">நீங்கள் இன்னும் எந்த திட்டத்திலும் சேரவில்லை.</p>
+            <p className="text-center text-gray-500 text-lg col-span-3">{t('no_plans_message')}</p>
           )}
         </div>
       </div>
@@ -650,17 +652,13 @@ const App = () => {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-indigo-800">
-            திட்டங்களில் சேரவும்
-          </h2>
-          {isAdmin && (
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="flex items-center bg-indigo-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105"
-            >
-              <PlusIcon className="w-5 h-5 mr-2" /> புதிய திட்டம்
-            </button>
-          )}
+          <h2 className="text-3xl font-bold text-indigo-800">{t('join_plans')}</h2>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center bg-indigo-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105"
+          >
+            <PlusIcon className="w-5 h-5 mr-2" /> {t('new_scheme')}
+          </button>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -677,20 +675,16 @@ const App = () => {
                 <hr className="my-4" />
                 <div className="space-y-2 text-gray-700">
                   <p>
-                    <span className="font-medium">குரூப் கோடு:</span>{" "}
-                    {scheme.groupCode}
+                    <span className="font-medium">{t('group_code')}</span> {scheme.groupCode}
                   </p>
                   <p>
-                    <span className="font-medium">மாதத் தொகை:</span>{" "}
-                    {formatCurrency(scheme.monthlyAmount)}
+                    <span className="font-medium">{t('monthly_amount')}</span> {formatCurrency(scheme.monthlyAmount)}
                   </p>
                   <p>
-                    <span className="font-medium">கால அளவு:</span>{" "}
-                    {scheme.tenure} மாதங்கள்
+                    <span className="font-medium">{t('tenure')}</span> {scheme.tenure} {t('months')}
                   </p>
                   <p>
-                    <span className="font-medium">மொத்தத் தொகை:</span>{" "}
-                    {formatCurrency(scheme.totalAmount)}
+                    <span className="font-medium">{t('total_amount')}</span> {formatCurrency(scheme.totalAmount)}
                   </p>
                 </div>
                 <p className="text-sm text-gray-500 mt-4">
@@ -704,32 +698,24 @@ const App = () => {
                   onClick={() => onJoinPlan(scheme)}
                   className="flex-1 flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
                 >
-                  <PlusIcon className="mr-2" /> சேரவும்
+                  <PlusIcon className="mr-2" /> {t('join')}
                 </button>
-                  )
-                }
-
-                {isAdmin && (
-                  <div className="flex-1 flex gap-2">
-                    <button
-                      onClick={() => {
-                        setSelectedScheme(scheme);
-                        setShowEditModal(true);
-                      }}
-                      className="flex-1 flex items-center justify-center text-blue-600 py-3 px-4 rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-colors transform hover:scale-105"
-                      title="திட்டத்தைத் திருத்து"
-                    >
-                      <EditIcon />
-                    </button>
-                    <button
-                      onClick={() => onDeleteScheme(scheme.id)}
-                      className="flex-1 flex items-center justify-center text-red-600 py-3 px-4 rounded-xl border-2 border-red-600 hover:bg-red-50 transition-colors transform hover:scale-105"
-                      title="திட்டத்தை நீக்கு"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </div>
-                )}
+                <div className="flex-1 flex gap-2">
+                  <button
+                    onClick={() => { setSelectedScheme(scheme); setShowEditModal(true); }}
+                    className="flex-1 flex items-center justify-center text-blue-600 py-3 px-4 rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-colors transform hover:scale-105"
+                    title={t('edit_scheme_title')}
+                  >
+                    <EditIcon />
+                  </button>
+                  <button
+                    onClick={() => onDeleteScheme(scheme.id)}
+                    className="flex-1 flex items-center justify-center text-red-600 py-3 px-4 rounded-xl border-2 border-red-600 hover:bg-red-50 transition-colors transform hover:scale-105"
+                    title={t('delete_scheme_title')}
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -777,17 +763,17 @@ const App = () => {
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full m-4">
-          <h3 className="text-2xl font-bold text-indigo-800 mb-4 text-center">புதிய திட்டம் சேர்</h3>
+          <h3 className="text-2xl font-bold text-indigo-800 mb-4 text-center">{t('add_new_scheme')}</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input type="text" placeholder="திட்டத்தின் தலைப்பு" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <input type="text" placeholder="துணைத் தலைப்பு" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <input type="text" placeholder="குரூப் கோடு" value={groupCode} onChange={(e) => setGroupCode(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <input type="number" placeholder="மாதத் தொகை" value={monthlyAmount} onChange={(e) => setMonthlyAmount(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <input type="number" placeholder="கால அளவு (மாதங்களில்)" value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <textarea placeholder="விளக்கம்" value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
+            <input type="text" placeholder={t('scheme_title')} value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="text" placeholder={t('subtitle')} value={subtitle} onChange={(e) => setSubtitle(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="text" placeholder={t('group_code_placeholder')} value={groupCode} onChange={(e) => setGroupCode(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="number" placeholder={t('monthly_amount_placeholder')} value={monthlyAmount} onChange={(e) => setMonthlyAmount(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="number" placeholder={t('tenure_placeholder')} value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <textarea placeholder={t('description')} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
             <div className="flex gap-4">
-              <button type="button" onClick={onClose} className="flex-1 py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors">ரத்து செய்</button>
-              <button type="submit" className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors">சேர்</button>
+              <button type="button" onClick={onClose} className="flex-1 py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors">{t('cancel')}</button>
+              <button type="submit" className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors">{t('add')}</button>
             </div>
           </form>
         </div>
@@ -821,17 +807,17 @@ const App = () => {
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full m-4">
-          <h3 className="text-2xl font-bold text-indigo-800 mb-4 text-center">திட்டத்தைத் திருத்து</h3>
+          <h3 className="text-2xl font-bold text-indigo-800 mb-4 text-center">{t('edit_scheme_title')}</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input type="text" placeholder="திட்டத்தின் தலைப்பு" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <input type="text" placeholder="துணைத் தலைப்பு" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <input type="text" placeholder="குரூப் கோடு" value={groupCode} onChange={(e) => setGroupCode(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <input type="number" placeholder="மாதத் தொகை" value={monthlyAmount} onChange={(e) => setMonthlyAmount(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <input type="number" placeholder="கால அளவு (மாதங்களில்)" value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <textarea placeholder="விளக்கம்" value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
+            <input type="text" placeholder={t('scheme_title')} value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="text" placeholder={t('subtitle')} value={subtitle} onChange={(e) => setSubtitle(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="text" placeholder={t('group_code_placeholder')} value={groupCode} onChange={(e) => setGroupCode(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="number" placeholder={t('monthly_amount_placeholder')} value={monthlyAmount} onChange={(e) => setMonthlyAmount(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <input type="number" placeholder={t('tenure_placeholder')} value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-3 border rounded-md" required />
+            <textarea placeholder={t('description')} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
             <div className="flex gap-4">
-              <button type="button" onClick={onClose} className="flex-1 py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors">ரத்து செய்</button>
-              <button type="submit" className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors">புதுப்பி</button>
+              <button type="button" onClick={onClose} className="flex-1 py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors">{t('cancel')}</button>
+              <button type="submit" className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors">{t('update')}</button>
             </div>
           </form>
         </div>
@@ -847,15 +833,15 @@ const App = () => {
 
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <h2 className="text-3xl font-bold text-indigo-800 mb-6">பயனர் சுயவிவரம்</h2>
+        <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('user_profile')}</h2>
         <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <img src="https://picsum.photos/seed/useravatar/100/100" alt="Avatar" className="w-16 h-16 rounded-full" />
               <div>
-                <h3 className="text-2xl font-bold text-gray-900">{myProfile?.name || 'பெயர் இல்லை'}</h3>
+                <h3 className="text-2xl font-bold text-gray-900">{myProfile?.name || t('no_name')}</h3>
                 <p className="text-gray-500">
-                  {myProfile?.email || user?.email || 'மின்னஞ்சல் இல்லை'}
+                  {myProfile?.email || user?.email || t('email_not_available')}
                 </p>
               </div>
             </div>
@@ -866,7 +852,7 @@ const App = () => {
               <button
                 onClick={() => onToggleUserActive(userId, myProfile.active)}
                 className={`p-2 rounded-full text-white transition-colors transform hover:scale-110 ${myProfile?.active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
-                title={myProfile?.active ? 'பயனரை செயலிழக்கச் செய்' : 'பயனரை செயல்படுத்து'}
+                title={myProfile?.active ? t('deactivate_user') : t('activate_user')}
               >
                 {myProfile?.active ? <TrashIcon className="w-5 h-5" /> : <PlusIcon className="w-5 h-5" />}
               </button>
@@ -877,15 +863,15 @@ const App = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p className="text-sm font-medium text-gray-500">மொபைல்</p>
-              <p className="mt-1 text-gray-900">{myProfile?.mobile || 'தகவல் இல்லை'}</p>
+              <p className="text-sm font-medium text-gray-500">{t('mobile_label')}</p>
+              <p className="mt-1 text-gray-900">{myProfile?.mobile || t('info_not_available')}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">திட்டங்களின் எண்ணிக்கை</p>
+              <p className="text-sm font-medium text-gray-500">{t('plan_count')}</p>
               <p className="mt-1 text-gray-900">{totalSchemes}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">பாக்கி தொகை</p>
+              <p className="text-sm font-medium text-gray-500">{t('due_total')}</p>
               <p className="mt-1 text-gray-900">{formatCurrency(totalDue)}</p>
             </div>
           </div>
@@ -894,14 +880,14 @@ const App = () => {
             onClick={() => setCurrentPage('EditUserScreen')}
             className="mt-8 w-full flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
           >
-            <EditIcon className="mr-2" /> சுயவிவரத்தைத் திருத்து
+            <EditIcon className="mr-2" /> {t('edit_profile')}
           </button>
 
           <button
             onClick={onLogout}
             className="mt-4 w-full flex items-center justify-center bg-gray-500 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-600 transition-colors transform hover:scale-105"
           >
-            <LogOutIcon className="mr-2" /> வெளியேறு
+            <LogOutIcon className="mr-2" /> {t('logout')}
           </button>
         </div>
       </div>
@@ -921,10 +907,10 @@ const App = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-center text-indigo-800 mb-6">சுயவிவரத்தைத் திருத்து</h2>
+          <h2 className="text-3xl font-bold text-center text-indigo-800 mb-6">{t('edit_profile_title')}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">பெயர்</label>
+              <label className="block text-sm font-medium text-gray-700">{t('name_label')}</label>
               <input
                 type="text"
                 value={name}
@@ -934,7 +920,7 @@ const App = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">மொபைல்</label>
+              <label className="block text-sm font-medium text-gray-700">{t('mobile_label')}</label>
               <input
                 type="tel"
                 value={mobile}
@@ -947,14 +933,14 @@ const App = () => {
               type="submit"
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
             >
-              புதுப்பி
+              {t('update')}
             </button>
             <button
               type="button"
               onClick={() => setCurrentPage('UserScreen')}
               className="mt-4 w-full text-blue-600 py-3 px-4 rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-colors transform hover:scale-105"
             >
-              திரும்பிச் செல்
+              {t('back')}
             </button>
           </form>
         </div>
@@ -966,7 +952,7 @@ const App = () => {
   const AllUsersScreen = ({ allUsers, onToggleUserActive }) => {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <h2 className="text-3xl font-bold text-indigo-800 mb-6">அனைத்து பயனர்கள்</h2>
+        <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('all_users')}</h2>
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <ul className="divide-y divide-gray-200">
             {allUsers.length > 0 ? (
@@ -982,12 +968,12 @@ const App = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {user.active ? 'செயலில்' : 'செயலற்றது'}
+                      {t(user.active ? 'active' : 'inactive')}
                     </span>
                     <button
                       onClick={() => onToggleUserActive(user.userId, user.active)}
                       className={`p-2 rounded-full text-white transition-colors transform hover:scale-110 ${user.active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
-                      title={user.active ? 'பயனரை செயலிழக்கச் செய்' : 'பயனரை செயல்படுத்து'}
+                      title={user.active ? t('deactivate_user') : t('activate_user')}
                     >
                       {user.active ? <TrashIcon className="w-5 h-5" /> : <PlusIcon className="w-5 h-5" />}
                     </button>
@@ -995,7 +981,7 @@ const App = () => {
                 </li>
               ))
             ) : (
-              <li className="p-6 text-center text-gray-500 text-lg">பயனர்கள் யாரும் இல்லை.</li>
+              <li className="p-6 text-center text-gray-500 text-lg">{t('no_users_message')}</li>
             )}
           </ul>
         </div>
@@ -1010,22 +996,22 @@ const App = () => {
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full">
-          <h3 className="text-xl font-bold text-red-600 text-center mb-4">உறுதிப்படுத்தல் தேவை</h3>
+          <h3 className="text-xl font-bold text-red-600 text-center mb-4">{t('confirm_title')}</h3>
           <p className="text-gray-800 text-center mb-6">
-            இந்த பயனர் கணக்கை {currentStatus ? 'செயலிழக்கச்' : 'Activate'} செய்ய நீங்கள் உறுதியாக உள்ளீர்களா?
+            {t('confirm_deactivate_message')}
           </p>
           <div className="flex gap-4">
             <button
               onClick={onClose}
               className="flex-1 text-gray-700 font-semibold py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors"
             >
-              ரத்து செய்
+              {t('cancel')}
             </button>
             <button
               onClick={onConfirm}
               className="flex-1 bg-red-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-red-700 transition-colors"
             >
-              உறுதிப்படுத்து
+              {t('confirm')}
             </button>
           </div>
         </div>
@@ -1043,7 +1029,7 @@ const App = () => {
             onClick={onClose}
             className="w-full bg-indigo-600 text-white py-3 px-4 rounded-xl hover:bg-indigo-700 transition-colors transform hover:scale-105"
           >
-            சரி
+            {t('ok')}
           </button>
         </div>
       </div>
@@ -1055,29 +1041,29 @@ const App = () => {
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full m-4">
-          <h3 className="text-2xl font-bold text-indigo-800 mb-4 text-center">பணம் செலுத்து</h3>
+          <h3 className="text-2xl font-bold text-indigo-800 mb-4 text-center">{t('pay_modal_title')}</h3>
           <p className="text-gray-700 mb-6 text-center">
-            <span className="font-semibold">{plan.title}</span> திட்டத்திற்காக நீங்கள் பணம் செலுத்தப் போகிறீர்கள்.
+            {t('pay_message', { title: plan.title })}
           </p>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">தொகை (INR)</label>
+              <label className="block text-sm font-medium text-gray-700">{t('amount_label')}</label>
               <input
                 type="number"
                 value={paymentAmount}
                 onChange={(e) => setPaymentAmount(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
-                placeholder="உதாரணம்: 20000"
+                placeholder={t('amount_placeholder')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">UPI/ரெபரன்ஸ் நம்பர்</label>
+              <label className="block text-sm font-medium text-gray-700">{t('reference_label')}</label>
               <input
                 type="text"
                 value={paymentReference}
                 onChange={(e) => setPaymentReference(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
-                placeholder="ரெபரன்ஸ் நம்பரை உள்ளிடவும்"
+                placeholder={t('reference_placeholder')}
               />
             </div>
           </div>
@@ -1086,13 +1072,13 @@ const App = () => {
               onClick={onClose}
               className="flex-1 text-gray-700 font-semibold py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors"
             >
-              ரத்து செய்
+              {t('cancel')}
             </button>
             <button
               onClick={onAddPayment}
               className="flex-1 bg-indigo-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors"
             >
-              செலுத்து
+              {t('submit_payment')}
             </button>
           </div>
         </div>
@@ -1104,7 +1090,7 @@ const App = () => {
   if (!isAuthReady) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="text-indigo-800 text-xl font-semibold">லோட் ஆகிறது...</div>
+        <div className="text-indigo-800 text-xl font-semibold">{t('loading')}</div>
       </div>
     );
   }
@@ -1148,185 +1134,101 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
       <main className="flex flex-row">
-        <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
-          <div className="p-6 md:flex flex-col h-full hidden">
-            <div className="flex items-center justify-center mb-8">
-              <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
-            </div>
-            <ul className="space-y-2 flex-grow">
-              {isAdmin && (
-                <li>
-                  <button
-                    onClick={() => setCurrentPage("MyPlans")}
-                    className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                      currentPage === "MyPlans"
-                        ? "bg-indigo-50 text-indigo-800 font-semibold"
-                        : "text-gray-600"
-                    }`}
-                  >
-                    <WalletIcon className="mr-3" />
-                    எனது திட்டங்கள்
-                  </button>
-                </li>
-              )}
-
-              <li>
-                <button
-                  onClick={() => setCurrentPage("JoinPlans")}
-                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                    currentPage === "JoinPlans"
-                      ? "bg-indigo-50 text-indigo-800 font-semibold"
-                      : "text-gray-600"
-                  }`}
-                >
-                  <PlusIcon className="mr-3" />
-                  திட்டங்கள்
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setCurrentPage("UserScreen")}
-                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                    currentPage === "UserScreen"
-                      ? "bg-indigo-50 text-indigo-800 font-semibold"
-                      : "text-gray-600"
-                  }`}
-                >
-                  <UserIcon className="mr-3" />
-                  சுயவிவரம்
-                </button>
-              </li>
-              {isAdmin && (
-                <li>
-                  <button
-                    onClick={() => setCurrentPage("AllUsersScreen")}
-                    className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                      currentPage === "AllUsersScreen"
-                        ? "bg-indigo-50 text-indigo-800 font-semibold"
-                        : "text-gray-600"
-                    }`}
-                  >
-                    <UsersIcon className="mr-3" />
-                    அனைத்து பயனர்கள்
-                  </button>
-                </li>
-              )}
-            </ul>
-            <div className="mt-8">
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
-              >
-                <LogOutIcon className="mr-2" />
-                வெளியேறு
-              </button>
-            </div>
+              <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
+        <div className="p-6 md:flex flex-col h-full hidden">
+          <div className="flex items-center justify-center mb-8">
+            <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
           </div>
-          <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
-            {!isAdmin && (
+          <ul className="space-y-2 flex-grow">
+            <li>
               <button
-                onClick={() => setCurrentPage("MyPlans")}
-                className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                  currentPage === "MyPlans"
-                    ? "text-indigo-800"
-                    : "text-gray-500"
-                }`}
+                onClick={() => setCurrentPage('MyPlans')}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'MyPlans' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
               >
-                <WalletIcon />
-                <span className="text-xs">திட்டங்கள்</span>
+                <WalletIcon className="mr-3" />
+                {t('my_plans')}
               </button>
-            )}
-            <button
-              onClick={() => setCurrentPage("JoinPlans")}
-              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                currentPage === "JoinPlans"
-                  ? "text-indigo-800"
-                  : "text-gray-500"
-              }`}
-            >
-              <PlusIcon />
-              <span className="text-xs">சேரவும்</span>
-            </button>
-            <button
-              onClick={() => setCurrentPage("UserScreen")}
-              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                currentPage === "UserScreen"
-                  ? "text-indigo-800"
-                  : "text-gray-500"
-              }`}
-            >
-              <UserIcon />
-              <span className="text-xs">சுயவிவரம்</span>
-            </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setCurrentPage('JoinPlans')}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'JoinPlans' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
+              >
+                <PlusIcon className="mr-3" />
+                {t('plans')}
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setCurrentPage('UserScreen')}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'UserScreen' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
+              >
+                <UserIcon className="mr-3" />
+                {t('profile')}
+              </button>
+            </li>
             {isAdmin && (
-              <button
-                onClick={() => setCurrentPage("AllUsersScreen")}
-                className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                  currentPage === "AllUsersScreen"
-                    ? "text-indigo-800"
-                    : "text-gray-500"
-                }`}
-              >
-                <UsersIcon />
-                <span className="text-xs">பயனர்கள்</span>
-              </button>
+              <li>
+                <button
+                  onClick={() => setCurrentPage('AllUsersScreen')}
+                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'AllUsersScreen' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
+                >
+                  <UsersIcon className="mr-3" />
+                  {t('all_users')}
+                </button>
+              </li>
             )}
+          </ul>
+          <div className="mt-8">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
+            >
+              <LogOutIcon className="mr-2" />
+              {t('logout')}
+            </button>
           </div>
-        </nav>
+        </div>
+        <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
+          <button
+            onClick={() => setCurrentPage('MyPlans')}
+            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'MyPlans' ? 'text-indigo-800' : 'text-gray-500'}`}
+          >
+            <WalletIcon />
+            <span className="text-xs">{t('plans_nav')}</span>
+          </button>
+          <button
+            onClick={() => setCurrentPage('JoinPlans')}
+            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'JoinPlans' ? 'text-indigo-800' : 'text-gray-500'}`}
+          >
+            <PlusIcon />
+            <span className="text-xs">{t('join_nav')}</span>
+          </button>
+          <button
+            onClick={() => setCurrentPage('UserScreen')}
+            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'UserScreen' ? 'text-indigo-800' : 'text-gray-500'}`}
+          >
+            <UserIcon />
+            <span className="text-xs">{t('profile_nav')}</span>
+          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setCurrentPage('AllUsersScreen')}
+              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'AllUsersScreen' ? 'text-indigo-800' : 'text-gray-500'}`}
+            >
+              <UsersIcon />
+              <span className="text-xs">{t('users_nav')}</span>
+            </button>
+          )}
+        </div>
+      </nav>
         <div className="container mx-auto">
-          {currentPage === "MyPlans" && !isAdmin && (
-            <MyPlans
-              userPlans={userPlans}
-              onPaymentClick={(plan) => {
-                setSelectedPlanForPayment(plan);
-                setShowPaymentModal(true);
-              }}
-            />
-          )}
-          {currentPage === "JoinPlans" && (
-            <JoinPlans
-              isAdmin={isAdmin}
-              schemes={schemes}
-              onJoinPlan={handleJoinPlan}
-              onAddScheme={handleAddScheme}
-              onEditScheme={handleUpdateScheme}
-              onDeleteScheme={handleDeleteScheme}
-            />
-          )}
-          {currentPage === "UserScreen" && (
-            <UserScreen
-              user={user}
-              myProfile={myProfile}
-              userPlans={userPlans}
-              onToggleUserActive={(id, status) => {
-                setUserToDeactivate({ id, status });
-                setShowDeactivateConfirmModal(true);
-              }}
-              onLogout={handleLogout}
-              setCurrentPage={setCurrentPage}
-            />
-          )}
-          {currentPage === "EditUserScreen" && (
-            <EditUserScreen
-              myProfile={myProfile}
-              onEditProfile={handleEditProfile}
-              setCurrentPage={setCurrentPage}
-            />
-          )}
-          {currentPage === "AllUsersScreen" && isAdmin && (
-            <AllUsersScreen
-              allUsers={allUsers}
-              onToggleUserActive={(id, status) => {
-                setUserToDeactivate({ id, status });
-                setShowDeactivateConfirmModal(true);
-              }}
-            />
-          )}
-          {currentPage === "AllUsersScreen" && !isAdmin && (
-            <div className="p-6 text-center text-gray-500 text-lg">
-              இந்த பக்கத்தை அணுக உங்களுக்கு அனுமதி இல்லை.
-            </div>
-          )}
+          {currentPage === 'MyPlans' && <MyPlans userPlans={userPlans} onPaymentClick={(plan) => {setSelectedPlanForPayment(plan); setShowPaymentModal(true);}} />}
+          {currentPage === 'JoinPlans' && <JoinPlans schemes={schemes} onJoinPlan={handleJoinPlan} onAddScheme={handleAddScheme} onEditScheme={handleUpdateScheme} onDeleteScheme={handleDeleteScheme} />}
+          {currentPage === 'UserScreen' && <UserScreen user={user} myProfile={myProfile} userPlans={userPlans} onToggleUserActive={(id, status) => { setUserToDeactivate({ id, status }); setShowDeactivateConfirmModal(true); }} onLogout={handleLogout} setCurrentPage={setCurrentPage} />}
+          {currentPage === 'EditUserScreen' && <EditUserScreen myProfile={myProfile} onEditProfile={handleEditProfile} setCurrentPage={setCurrentPage} />}
+          {currentPage === 'AllUsersScreen' && isAdmin && <AllUsersScreen allUsers={allUsers} onToggleUserActive={(id, status) => { setUserToDeactivate({ id, status }); setShowDeactivateConfirmModal(true); }} />}
+          {currentPage === 'AllUsersScreen' && !isAdmin && <div className="p-6 text-center text-gray-500 text-lg">{t('unauthorized_page')}</div>}
         </div>
       </main>
 

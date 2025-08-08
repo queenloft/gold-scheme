@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
+import i18n from './i18n';
 
-test('renders learn react link', () => {
+test('renders loading text', () => {
+  i18n.changeLanguage('en');
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const loadingText = screen.getByText(/loading/i);
+  expect(loadingText).toBeInTheDocument();
 });
