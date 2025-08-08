@@ -63,7 +63,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
-  const [currentPage, setCurrentPage] = useState('MyPlans');
+  const [currentPage, setCurrentPage] = useState('JoinPlans');
   const [myProfile, setMyProfile] = useState(null); 
   const [userPlans, setUserPlans] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
@@ -158,10 +158,11 @@ const App = () => {
 
   useEffect(() => {
     if (db) {
+      console.log(__app_id)
       const qSchemes = query(collection(db, `artifacts/${__app_id}/joinSchemes`));
       const unsubscribeSchemes = onSnapshot(qSchemes, (snapshot) => {
         const schemeList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setSchemes(schemeList);
+        setSchemes([...schemeList]);
       });
       return () => unsubscribeSchemes();
     }
@@ -340,7 +341,7 @@ const App = () => {
       } catch (error) {
         setModalMessage('பயனர் நிலையை மாற்றுவதில் ஒரு சிக்கல் ஏற்பட்டது.');
         setShowModal(true);
-        console.error('Error toggling user active status:', error);
+        console.log('Error toggling user active status:', error);
       }
     }
   };
@@ -641,7 +642,7 @@ const App = () => {
   };
   
   // JoinPlans Screen Component
-  const JoinPlans = ({ schemes, onJoinPlan, onAddScheme, onEditScheme, onDeleteScheme }) => {
+  const JoinPlans = ({ schemes, onJoinPlan, onAddScheme, onEditScheme, onDeleteScheme, isAdmin }) => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedScheme, setSelectedScheme] = useState(null);
@@ -649,18 +650,25 @@ const App = () => {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-indigo-800">திட்டங்களில் சேரவும்</h2>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center bg-indigo-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105"
-          >
-            <PlusIcon className="w-5 h-5 mr-2" /> புதிய திட்டம்
-          </button>
+          <h2 className="text-3xl font-bold text-indigo-800">
+            திட்டங்களில் சேரவும்
+          </h2>
+          {isAdmin && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center bg-indigo-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105"
+            >
+              <PlusIcon className="w-5 h-5 mr-2" /> புதிய திட்டம்
+            </button>
+          )}
         </div>
-        
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {schemes.map((scheme) => (
-            <div key={scheme.id} className="bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between border-2 border-gray-200 hover:border-blue-500 transition-all">
+            <div
+              key={scheme.id}
+              className="bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between border-2 border-gray-200 hover:border-blue-500 transition-all"
+            >
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                   <GoldIcon /> {scheme.title}
@@ -669,49 +677,76 @@ const App = () => {
                 <hr className="my-4" />
                 <div className="space-y-2 text-gray-700">
                   <p>
-                    <span className="font-medium">குரூப் கோடு:</span> {scheme.groupCode}
+                    <span className="font-medium">குரூப் கோடு:</span>{" "}
+                    {scheme.groupCode}
                   </p>
                   <p>
-                    <span className="font-medium">மாதத் தொகை:</span> {formatCurrency(scheme.monthlyAmount)}
+                    <span className="font-medium">மாதத் தொகை:</span>{" "}
+                    {formatCurrency(scheme.monthlyAmount)}
                   </p>
                   <p>
-                    <span className="font-medium">கால அளவு:</span> {scheme.tenure} மாதங்கள்
+                    <span className="font-medium">கால அளவு:</span>{" "}
+                    {scheme.tenure} மாதங்கள்
                   </p>
                   <p>
-                    <span className="font-medium">மொத்தத் தொகை:</span> {formatCurrency(scheme.totalAmount)}
+                    <span className="font-medium">மொத்தத் தொகை:</span>{" "}
+                    {formatCurrency(scheme.totalAmount)}
                   </p>
                 </div>
-                <p className="text-sm text-gray-500 mt-4">{scheme.description}</p>
+                <p className="text-sm text-gray-500 mt-4">
+                  {scheme.description}
+                </p>
               </div>
               <div className="mt-6 flex flex-col sm:flex-row gap-2">
-                <button
+                {
+                  !isAdmin && (
+                                    <button
                   onClick={() => onJoinPlan(scheme)}
                   className="flex-1 flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
                 >
                   <PlusIcon className="mr-2" /> சேரவும்
                 </button>
-                <div className="flex-1 flex gap-2">
-                  <button
-                    onClick={() => { setSelectedScheme(scheme); setShowEditModal(true); }}
-                    className="flex-1 flex items-center justify-center text-blue-600 py-3 px-4 rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-colors transform hover:scale-105"
-                    title="திட்டத்தைத் திருத்து"
-                  >
-                    <EditIcon />
-                  </button>
-                  <button
-                    onClick={() => onDeleteScheme(scheme.id)}
-                    className="flex-1 flex items-center justify-center text-red-600 py-3 px-4 rounded-xl border-2 border-red-600 hover:bg-red-50 transition-colors transform hover:scale-105"
-                    title="திட்டத்தை நீக்கு"
-                  >
-                    <TrashIcon />
-                  </button>
-                </div>
+                  )
+                }
+
+                {isAdmin && (
+                  <div className="flex-1 flex gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedScheme(scheme);
+                        setShowEditModal(true);
+                      }}
+                      className="flex-1 flex items-center justify-center text-blue-600 py-3 px-4 rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-colors transform hover:scale-105"
+                      title="திட்டத்தைத் திருத்து"
+                    >
+                      <EditIcon />
+                    </button>
+                    <button
+                      onClick={() => onDeleteScheme(scheme.id)}
+                      className="flex-1 flex items-center justify-center text-red-600 py-3 px-4 rounded-xl border-2 border-red-600 hover:bg-red-50 transition-colors transform hover:scale-105"
+                      title="திட்டத்தை நீக்கு"
+                    >
+                      <TrashIcon />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
-        {showAddModal && <AddSchemeModal onClose={() => setShowAddModal(false)} onAddScheme={onAddScheme} />}
-        {showEditModal && <EditSchemeModal scheme={selectedScheme} onClose={() => setShowEditModal(false)} onUpdateScheme={onEditScheme} />}
+        {showAddModal && (
+          <AddSchemeModal
+            onClose={() => setShowAddModal(false)}
+            onAddScheme={onAddScheme}
+          />
+        )}
+        {showEditModal && (
+          <EditSchemeModal
+            scheme={selectedScheme}
+            onClose={() => setShowEditModal(false)}
+            onUpdateScheme={onEditScheme}
+          />
+        )}
       </div>
     );
   };
@@ -970,13 +1005,14 @@ const App = () => {
   
 
   // Deactivate Confirmation Modal
-  const DeactivateConfirmModal = ({ onClose, onConfirm }) => {
+  const DeactivateConfirmModal = ({ onClose, onConfirm, currentStatus }) => {
+    console.log('DeactivateConfirmModal', currentStatus)
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full">
           <h3 className="text-xl font-bold text-red-600 text-center mb-4">உறுதிப்படுத்தல் தேவை</h3>
           <p className="text-gray-800 text-center mb-6">
-            இந்த பயனர் கணக்கை செயலிழக்கச் செய்ய நீங்கள் உறுதியாக உள்ளீர்களா?
+            இந்த பயனர் கணக்கை {currentStatus ? 'செயலிழக்கச்' : 'Activate'} செய்ய நீங்கள் உறுதியாக உள்ளீர்களா?
           </p>
           <div className="flex gap-4">
             <button
@@ -1087,111 +1123,197 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
-
-
       <main className="flex flex-row">
-              <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
-        <div className="p-6 md:flex flex-col h-full hidden">
-          <div className="flex items-center justify-center mb-8">
-            <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
-          </div>
-          <ul className="space-y-2 flex-grow">
-            <li>
-              <button
-                onClick={() => setCurrentPage('MyPlans')}
-                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'MyPlans' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
-              >
-                <WalletIcon className="mr-3" />
-                எனது திட்டங்கள்
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => setCurrentPage('JoinPlans')}
-                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'JoinPlans' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
-              >
-                <PlusIcon className="mr-3" />
-                திட்டங்கள்
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => setCurrentPage('UserScreen')}
-                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'UserScreen' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
-              >
-                <UserIcon className="mr-3" />
-                சுயவிவரம்
-              </button>
-            </li>
-            {isAdmin && (
+        <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
+          <div className="p-6 md:flex flex-col h-full hidden">
+            <div className="flex items-center justify-center mb-8">
+              <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
+            </div>
+            <ul className="space-y-2 flex-grow">
+              {isAdmin && (
+                <li>
+                  <button
+                    onClick={() => setCurrentPage("MyPlans")}
+                    className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                      currentPage === "MyPlans"
+                        ? "bg-indigo-50 text-indigo-800 font-semibold"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    <WalletIcon className="mr-3" />
+                    எனது திட்டங்கள்
+                  </button>
+                </li>
+              )}
+
               <li>
                 <button
-                  onClick={() => setCurrentPage('AllUsersScreen')}
-                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'AllUsersScreen' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
+                  onClick={() => setCurrentPage("JoinPlans")}
+                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                    currentPage === "JoinPlans"
+                      ? "bg-indigo-50 text-indigo-800 font-semibold"
+                      : "text-gray-600"
+                  }`}
                 >
-                  <UsersIcon className="mr-3" />
-                  அனைத்து பயனர்கள்
+                  <PlusIcon className="mr-3" />
+                  திட்டங்கள்
                 </button>
               </li>
-            )}
-          </ul>
-          <div className="mt-8">
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
-            >
-              <LogOutIcon className="mr-2" />
-              வெளியேறு
-            </button>
+              <li>
+                <button
+                  onClick={() => setCurrentPage("UserScreen")}
+                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                    currentPage === "UserScreen"
+                      ? "bg-indigo-50 text-indigo-800 font-semibold"
+                      : "text-gray-600"
+                  }`}
+                >
+                  <UserIcon className="mr-3" />
+                  சுயவிவரம்
+                </button>
+              </li>
+              {isAdmin && (
+                <li>
+                  <button
+                    onClick={() => setCurrentPage("AllUsersScreen")}
+                    className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                      currentPage === "AllUsersScreen"
+                        ? "bg-indigo-50 text-indigo-800 font-semibold"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    <UsersIcon className="mr-3" />
+                    அனைத்து பயனர்கள்
+                  </button>
+                </li>
+              )}
+            </ul>
+            <div className="mt-8">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
+              >
+                <LogOutIcon className="mr-2" />
+                வெளியேறு
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
-          <button
-            onClick={() => setCurrentPage('MyPlans')}
-            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'MyPlans' ? 'text-indigo-800' : 'text-gray-500'}`}
-          >
-            <WalletIcon />
-            <span className="text-xs">திட்டங்கள்</span>
-          </button>
-          <button
-            onClick={() => setCurrentPage('JoinPlans')}
-            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'JoinPlans' ? 'text-indigo-800' : 'text-gray-500'}`}
-          >
-            <PlusIcon />
-            <span className="text-xs">சேரவும்</span>
-          </button>
-          <button
-            onClick={() => setCurrentPage('UserScreen')}
-            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'UserScreen' ? 'text-indigo-800' : 'text-gray-500'}`}
-          >
-            <UserIcon />
-            <span className="text-xs">சுயவிவரம்</span>
-          </button>
-          {isAdmin && (
+          <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
+            {!isAdmin && (
+              <button
+                onClick={() => setCurrentPage("MyPlans")}
+                className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                  currentPage === "MyPlans"
+                    ? "text-indigo-800"
+                    : "text-gray-500"
+                }`}
+              >
+                <WalletIcon />
+                <span className="text-xs">திட்டங்கள்</span>
+              </button>
+            )}
             <button
-              onClick={() => setCurrentPage('AllUsersScreen')}
-              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'AllUsersScreen' ? 'text-indigo-800' : 'text-gray-500'}`}
+              onClick={() => setCurrentPage("JoinPlans")}
+              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                currentPage === "JoinPlans"
+                  ? "text-indigo-800"
+                  : "text-gray-500"
+              }`}
             >
-              <UsersIcon />
-              <span className="text-xs">பயனர்கள்</span>
+              <PlusIcon />
+              <span className="text-xs">சேரவும்</span>
             </button>
-          )}
-        </div>
-      </nav>
+            <button
+              onClick={() => setCurrentPage("UserScreen")}
+              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                currentPage === "UserScreen"
+                  ? "text-indigo-800"
+                  : "text-gray-500"
+              }`}
+            >
+              <UserIcon />
+              <span className="text-xs">சுயவிவரம்</span>
+            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setCurrentPage("AllUsersScreen")}
+                className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                  currentPage === "AllUsersScreen"
+                    ? "text-indigo-800"
+                    : "text-gray-500"
+                }`}
+              >
+                <UsersIcon />
+                <span className="text-xs">பயனர்கள்</span>
+              </button>
+            )}
+          </div>
+        </nav>
         <div className="container mx-auto">
-          {currentPage === 'MyPlans' && <MyPlans userPlans={userPlans} onPaymentClick={(plan) => {setSelectedPlanForPayment(plan); setShowPaymentModal(true);}} />}
-          {currentPage === 'JoinPlans' && <JoinPlans schemes={schemes} onJoinPlan={handleJoinPlan} onAddScheme={handleAddScheme} onEditScheme={handleUpdateScheme} onDeleteScheme={handleDeleteScheme} />}
-          {currentPage === 'UserScreen' && <UserScreen user={user} myProfile={myProfile} userPlans={userPlans} onToggleUserActive={(id, status) => { setUserToDeactivate({ id, status }); setShowDeactivateConfirmModal(true); }} onLogout={handleLogout} setCurrentPage={setCurrentPage} />}
-          {currentPage === 'EditUserScreen' && <EditUserScreen myProfile={myProfile} onEditProfile={handleEditProfile} setCurrentPage={setCurrentPage} />}
-          {currentPage === 'AllUsersScreen' && isAdmin && <AllUsersScreen allUsers={allUsers} onToggleUserActive={(id, status) => { setUserToDeactivate({ id, status }); setShowDeactivateConfirmModal(true); }} />}
-          {currentPage === 'AllUsersScreen' && !isAdmin && <div className="p-6 text-center text-gray-500 text-lg">இந்த பக்கத்தை அணுக உங்களுக்கு அனுமதி இல்லை.</div>}
+          {currentPage === "MyPlans" && !isAdmin && (
+            <MyPlans
+              userPlans={userPlans}
+              onPaymentClick={(plan) => {
+                setSelectedPlanForPayment(plan);
+                setShowPaymentModal(true);
+              }}
+            />
+          )}
+          {currentPage === "JoinPlans" && (
+            <JoinPlans
+              isAdmin={isAdmin}
+              schemes={schemes}
+              onJoinPlan={handleJoinPlan}
+              onAddScheme={handleAddScheme}
+              onEditScheme={handleUpdateScheme}
+              onDeleteScheme={handleDeleteScheme}
+            />
+          )}
+          {currentPage === "UserScreen" && (
+            <UserScreen
+              user={user}
+              myProfile={myProfile}
+              userPlans={userPlans}
+              onToggleUserActive={(id, status) => {
+                setUserToDeactivate({ id, status });
+                setShowDeactivateConfirmModal(true);
+              }}
+              onLogout={handleLogout}
+              setCurrentPage={setCurrentPage}
+            />
+          )}
+          {currentPage === "EditUserScreen" && (
+            <EditUserScreen
+              myProfile={myProfile}
+              onEditProfile={handleEditProfile}
+              setCurrentPage={setCurrentPage}
+            />
+          )}
+          {currentPage === "AllUsersScreen" && isAdmin && (
+            <AllUsersScreen
+              allUsers={allUsers}
+              onToggleUserActive={(id, status) => {
+                setUserToDeactivate({ id, status });
+                setShowDeactivateConfirmModal(true);
+              }}
+            />
+          )}
+          {currentPage === "AllUsersScreen" && !isAdmin && (
+            <div className="p-6 text-center text-gray-500 text-lg">
+              இந்த பக்கத்தை அணுக உங்களுக்கு அனுமதி இல்லை.
+            </div>
+          )}
         </div>
       </main>
 
       {showPaymentModal && (
         <PaymentModal
           plan={selectedPlanForPayment}
-          onClose={() => {setShowPaymentModal(false); setPaymentAmount(''); setPaymentReference('');}}
+          onClose={() => {
+            setShowPaymentModal(false);
+            setPaymentAmount("");
+            setPaymentReference("");
+          }}
           onAddPayment={handleAddPayment}
           paymentAmount={paymentAmount}
           setPaymentAmount={setPaymentAmount}
@@ -1201,13 +1323,21 @@ const App = () => {
       )}
 
       {showDeactivateConfirmModal && (
-        <DeactivateConfirmModal 
+        <DeactivateConfirmModal
           onClose={() => setShowDeactivateConfirmModal(false)}
-          onConfirm={() => handleToggleUserActive(userToDeactivate.id, userToDeactivate.status)}
+          currentStatus={userToDeactivate.status}
+          onConfirm={() =>
+            handleToggleUserActive(userToDeactivate.id, userToDeactivate.status)
+          }
         />
       )}
 
-      {showModal && <MessageModal message={modalMessage} onClose={() => setShowModal(false)} />}
+      {showModal && (
+        <MessageModal
+          message={modalMessage}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };
