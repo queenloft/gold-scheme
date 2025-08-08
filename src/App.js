@@ -64,7 +64,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
-  const [currentPage, setCurrentPage] = useState('JoinPlans');
+  const [currentPage, setCurrentPage] = useState('Dashboard');
   const [myProfile, setMyProfile] = useState(null); 
   const [userPlans, setUserPlans] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
@@ -593,7 +593,72 @@ const App = () => {
       </div>
     );
   };
-  
+
+  // Dashboard Component
+  const Dashboard = ({ isAdmin, userPlans, allUsers, schemes }) => {
+    if (isAdmin) {
+      const totalUsers = allUsers.length;
+      const activeUsers = allUsers.filter((u) => u.active).length;
+      const totalSchemes = schemes.length;
+      return (
+        <div className="p-4 sm:p-6 lg:p-8">
+          <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('dashboard')}</h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{t('total_users')}</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">{totalUsers}</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{t('active_users')}</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">{activeUsers}</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{t('total_schemes')}</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">{totalSchemes}</p>
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      const totalPlans = userPlans.length;
+      const totalPaid = userPlans.reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+      const totalDue = userPlans.reduce(
+        (sum, p) => sum + ((p.totalAmount || 0) - (p.paidAmount || 0)),
+        0
+      );
+      const totalWeight = userPlans.reduce((sum, p) => sum + (p.paidWeight || 0), 0);
+      return (
+        <div className="p-4 sm:p-6 lg:p-8">
+          <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('dashboard')}</h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{t('total_plans')}</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">{totalPlans}</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{t('total_paid')}</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">
+                {formatCurrency(totalPaid)}
+              </p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{t('total_due')}</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">
+                {formatCurrency(totalDue)}
+              </p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{t('total_gold_weight')}</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">
+                {totalWeight.toFixed(3)} g
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
+
   // MyPlans Screen Component
   const MyPlans = ({ userPlans, onPaymentClick }) => {
     return (
@@ -1180,6 +1245,19 @@ const App = () => {
               <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
             </div>
             <ul className="space-y-2 flex-grow">
+              <li>
+                <button
+                  onClick={() => setCurrentPage("Dashboard")}
+                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                    currentPage === "Dashboard"
+                      ? "bg-indigo-50 text-indigo-800 font-semibold"
+                      : "text-gray-600"
+                  }`}
+                >
+                  <HomeIcon className="mr-3" />
+                  {t("dashboard")}
+                </button>
+              </li>
               {!isAdmin && (
                 <li>
                   <button
@@ -1262,7 +1340,17 @@ const App = () => {
           </div>
           <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
 
-           {
+            <button
+              onClick={() => setCurrentPage("Dashboard")}
+              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                currentPage === "Dashboard" ? "text-indigo-800" : "text-gray-500"
+              }`}
+            >
+              <HomeIcon />
+              <span className="text-xs">{t("dashboard_nav")}</span>
+            </button>
+
+            {
             !isAdmin && (
               <button
               onClick={() => setCurrentPage("MyPlans")}
@@ -1274,7 +1362,7 @@ const App = () => {
               <span className="text-xs">{t("plans_nav")}</span>
             </button>
             )
-           } 
+           }
             <button
               onClick={() => setCurrentPage("JoinPlans")}
               className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
@@ -1313,6 +1401,14 @@ const App = () => {
           </div>
         </nav>
         <div className="container mx-auto">
+          {currentPage === "Dashboard" && (
+            <Dashboard
+              isAdmin={isAdmin}
+              userPlans={userPlans}
+              allUsers={allUsers}
+              schemes={schemes}
+            />
+          )}
           {currentPage === "MyPlans" && (
             <MyPlans
               userPlans={userPlans}

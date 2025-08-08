@@ -102,5 +102,14 @@
   "users_nav": "பயனர்கள்",
   "language": "மொழி",
   "english": "ஆங்கிலம்",
-  "tamil": "தமிழ்"
+  "tamil": "தமிழ்",
+  "dashboard": "டாஷ்போர்டு",
+  "total_users": "மொத்த பயனர்கள்",
+  "active_users": "செயலில் உள்ள பயனர்கள்",
+  "total_schemes": "மொத்த திட்டங்கள்",
+  "total_plans": "மொத்த திட்டங்கள்",
+  "total_paid": "மொத்தம் செலுத்தப்பட்டது",
+  "total_due": "மொத்த பாக்கி",
+  "total_gold_weight": "மொத்த தங்க எடை",
+  "dashboard_nav": "டாஷ்போர்டு"
 }
