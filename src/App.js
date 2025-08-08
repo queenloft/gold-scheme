@@ -1012,7 +1012,8 @@ const App = () => {
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full">
           <h3 className="text-xl font-bold text-red-600 text-center mb-4">{t('confirm_title')}</h3>
           <p className="text-gray-800 text-center mb-6">
-            {t('confirm_deactivate_message')}
+            {t('confirm_deactivate_message', { status: !currentStatus? "activate" : "deactivate" })}
+            
           </p>
           <div className="flex gap-4">
             <button
@@ -1148,101 +1149,186 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
       <main className="flex flex-row">
-              <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
-        <div className="p-6 md:flex flex-col h-full hidden">
-          <div className="flex items-center justify-center mb-8">
-            <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
-          </div>
-          <ul className="space-y-2 flex-grow">
-            <li>
-              <button
-                onClick={() => setCurrentPage('MyPlans')}
-                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'MyPlans' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
-              >
-                <WalletIcon className="mr-3" />
-                {t('my_plans')}
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => setCurrentPage('JoinPlans')}
-                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'JoinPlans' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
-              >
-                <PlusIcon className="mr-3" />
-                {t('plans')}
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => setCurrentPage('UserScreen')}
-                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'UserScreen' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
-              >
-                <UserIcon className="mr-3" />
-                {t('profile')}
-              </button>
-            </li>
-            {isAdmin && (
+        <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
+          <div className="p-6 md:flex flex-col h-full hidden">
+            <div className="flex items-center justify-center mb-8">
+              <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
+            </div>
+            <ul className="space-y-2 flex-grow">
+              {!isAdmin && (
+                <li>
+                  <button
+                    onClick={() => setCurrentPage("MyPlans")}
+                    className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                      currentPage === "MyPlans"
+                        ? "bg-indigo-50 text-indigo-800 font-semibold"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    <WalletIcon className="mr-3" />
+                    {t("my_plans")}
+                  </button>
+                </li>
+              )}
+
               <li>
                 <button
-                  onClick={() => setCurrentPage('AllUsersScreen')}
-                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${currentPage === 'AllUsersScreen' ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-gray-600'}`}
+                  onClick={() => setCurrentPage("JoinPlans")}
+                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                    currentPage === "JoinPlans"
+                      ? "bg-indigo-50 text-indigo-800 font-semibold"
+                      : "text-gray-600"
+                  }`}
                 >
-                  <UsersIcon className="mr-3" />
-                  {t('all_users')}
+                  <PlusIcon className="mr-3" />
+                  {t("plans")}
                 </button>
               </li>
-            )}
-          </ul>
-          <div className="mt-8">
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
-            >
-              <LogOutIcon className="mr-2" />
-              {t('logout')}
-            </button>
+              <li>
+                <button
+                  onClick={() => setCurrentPage("UserScreen")}
+                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                    currentPage === "UserScreen"
+                      ? "bg-indigo-50 text-indigo-800 font-semibold"
+                      : "text-gray-600"
+                  }`}
+                >
+                  <UserIcon className="mr-3" />
+                  {t("profile")}
+                </button>
+              </li>
+              {isAdmin && (
+                <li>
+                  <button
+                    onClick={() => setCurrentPage("AllUsersScreen")}
+                    className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                      currentPage === "AllUsersScreen"
+                        ? "bg-indigo-50 text-indigo-800 font-semibold"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    <UsersIcon className="mr-3" />
+                    {t("all_users")}
+                  </button>
+                </li>
+              )}
+            </ul>
+            <div className="mt-8">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
+              >
+                <LogOutIcon className="mr-2" />
+                {t("logout")}
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
-          <button
-            onClick={() => setCurrentPage('MyPlans')}
-            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'MyPlans' ? 'text-indigo-800' : 'text-gray-500'}`}
-          >
-            <WalletIcon />
-            <span className="text-xs">{t('plans_nav')}</span>
-          </button>
-          <button
-            onClick={() => setCurrentPage('JoinPlans')}
-            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'JoinPlans' ? 'text-indigo-800' : 'text-gray-500'}`}
-          >
-            <PlusIcon />
-            <span className="text-xs">{t('join_nav')}</span>
-          </button>
-          <button
-            onClick={() => setCurrentPage('UserScreen')}
-            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'UserScreen' ? 'text-indigo-800' : 'text-gray-500'}`}
-          >
-            <UserIcon />
-            <span className="text-xs">{t('profile_nav')}</span>
-          </button>
-          {isAdmin && (
-            <button
-              onClick={() => setCurrentPage('AllUsersScreen')}
-              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${currentPage === 'AllUsersScreen' ? 'text-indigo-800' : 'text-gray-500'}`}
+          <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
+           
+           {
+            !isAdmin && (
+              <button
+              onClick={() => setCurrentPage("MyPlans")}
+              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                currentPage === "MyPlans" ? "text-indigo-800" : "text-gray-500"
+              }`}
             >
-              <UsersIcon />
-              <span className="text-xs">{t('users_nav')}</span>
+              <WalletIcon />
+              <span className="text-xs">{t("plans_nav")}</span>
             </button>
-          )}
-        </div>
-      </nav>
+            )
+           } 
+            <button
+              onClick={() => setCurrentPage("JoinPlans")}
+              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                currentPage === "JoinPlans"
+                  ? "text-indigo-800"
+                  : "text-gray-500"
+              }`}
+            >
+              <PlusIcon />
+              <span className="text-xs">{t("join_nav")}</span>
+            </button>
+            <button
+              onClick={() => setCurrentPage("UserScreen")}
+              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                currentPage === "UserScreen"
+                  ? "text-indigo-800"
+                  : "text-gray-500"
+              }`}
+            >
+              <UserIcon />
+              <span className="text-xs">{t("profile_nav")}</span>
+            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setCurrentPage("AllUsersScreen")}
+                className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                  currentPage === "AllUsersScreen"
+                    ? "text-indigo-800"
+                    : "text-gray-500"
+                }`}
+              >
+                <UsersIcon />
+                <span className="text-xs">{t("users_nav")}</span>
+              </button>
+            )}
+          </div>
+        </nav>
         <div className="container mx-auto">
-          {currentPage === 'MyPlans' && <MyPlans userPlans={userPlans} onPaymentClick={(plan) => {setSelectedPlanForPayment(plan); setShowPaymentModal(true);}} />}
-          {currentPage === 'JoinPlans' && <JoinPlans schemes={schemes} onJoinPlan={handleJoinPlan} onAddScheme={handleAddScheme} onEditScheme={handleUpdateScheme} onDeleteScheme={handleDeleteScheme} />}
-          {currentPage === 'UserScreen' && <UserScreen user={user} myProfile={myProfile} userPlans={userPlans} onToggleUserActive={(id, status) => { setUserToDeactivate({ id, status }); setShowDeactivateConfirmModal(true); }} onLogout={handleLogout} setCurrentPage={setCurrentPage} />}
-          {currentPage === 'EditUserScreen' && <EditUserScreen myProfile={myProfile} onEditProfile={handleEditProfile} setCurrentPage={setCurrentPage} />}
-          {currentPage === 'AllUsersScreen' && isAdmin && <AllUsersScreen allUsers={allUsers} onToggleUserActive={(id, status) => { setUserToDeactivate({ id, status }); setShowDeactivateConfirmModal(true); }} />}
-          {currentPage === 'AllUsersScreen' && !isAdmin && <div className="p-6 text-center text-gray-500 text-lg">{t('unauthorized_page')}</div>}
+          {currentPage === "MyPlans" && (
+            <MyPlans
+              userPlans={userPlans}
+              onPaymentClick={(plan) => {
+                setSelectedPlanForPayment(plan);
+                setShowPaymentModal(true);
+              }}
+            />
+          )}
+          {currentPage === "JoinPlans" && (
+            <JoinPlans
+              schemes={schemes}
+              onJoinPlan={handleJoinPlan}
+              onAddScheme={handleAddScheme}
+              onEditScheme={handleUpdateScheme}
+              onDeleteScheme={handleDeleteScheme}
+              isAdmin={isAdmin}
+            />
+          )}
+          {currentPage === "UserScreen" && (
+            <UserScreen
+              user={user}
+              myProfile={myProfile}
+              userPlans={userPlans}
+              onToggleUserActive={(id, status) => {
+                setUserToDeactivate({ id, status });
+                setShowDeactivateConfirmModal(true);
+              }}
+              onLogout={handleLogout}
+              setCurrentPage={setCurrentPage}
+            />
+          )}
+          {currentPage === "EditUserScreen" && (
+            <EditUserScreen
+              myProfile={myProfile}
+              onEditProfile={handleEditProfile}
+              setCurrentPage={setCurrentPage}
+            />
+          )}
+          {currentPage === "AllUsersScreen" && isAdmin && (
+            <AllUsersScreen
+              allUsers={allUsers}
+              onToggleUserActive={(id, status) => {
+                setUserToDeactivate({ id, status });
+                setShowDeactivateConfirmModal(true);
+              }}
+            />
+          )}
+          {currentPage === "AllUsersScreen" && !isAdmin && (
+            <div className="p-6 text-center text-gray-500 text-lg">
+              {t("unauthorized_page")}
+            </div>
+          )}
         </div>
       </main>
 
