@@ -102,5 +102,14 @@
   "users_nav": "Users",
   "language": "Language",
   "english": "English",
-  "tamil": "Tamil"
+  "tamil": "Tamil",
+  "dashboard": "Dashboard",
+  "total_users": "Total Users",
+  "active_users": "Active Users",
+  "total_schemes": "Total Schemes",
+  "total_plans": "Total Plans",
+  "total_paid": "Total Paid",
+  "total_due": "Total Due",
+  "total_gold_weight": "Total Gold Weight",
+  "dashboard_nav": "Dashboard"
 }
