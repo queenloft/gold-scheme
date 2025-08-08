@@ -1112,10 +1112,34 @@ const App = () => {
   // Display Login/Register page if user is not authenticated
   if (!user) {
     switch (currentPage) {
-      case 'Register':
-        return <RegisterScreen onRegister={handleRegister} setCurrentPage={setCurrentPage} />;
+      case "Register":
+        return (
+          <>
+            {showModal && (
+              <MessageModal
+                message={modalMessage}
+                onClose={() => setShowModal(false)}
+              />
+            )}
+
+            <RegisterScreen
+              onRegister={handleRegister}
+              setCurrentPage={setCurrentPage}
+            />
+          </>
+        );
       default:
-        return <Login authInstance={auth} setCurrentPage={setCurrentPage} />;
+        return (
+        <>
+          {showModal && (
+            <MessageModal
+              message={modalMessage}
+              onClose={() => setShowModal(false)}
+            />
+          )}
+
+          <Login authInstance={auth} setCurrentPage={setCurrentPage} />
+        </>);
     }
   }
 
