@@ -652,13 +652,17 @@ const App = () => {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-indigo-800">{t('join_plans')}</h2>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center bg-indigo-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105"
-          >
-            <PlusIcon className="w-5 h-5 mr-2" /> {t('new_scheme')}
-          </button>
+          <h2 className="text-3xl font-bold text-indigo-800">
+            {t("join_plans")}
+          </h2>
+          {isAdmin && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center bg-indigo-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105"
+            >
+              <PlusIcon className="w-5 h-5 mr-2" /> {t("new_scheme")}
+            </button>
+          )}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -675,16 +679,20 @@ const App = () => {
                 <hr className="my-4" />
                 <div className="space-y-2 text-gray-700">
                   <p>
-                    <span className="font-medium">{t('group_code')}</span> {scheme.groupCode}
+                    <span className="font-medium">{t("group_code")}</span>{" "}
+                    {scheme.groupCode}
                   </p>
                   <p>
-                    <span className="font-medium">{t('monthly_amount')}</span> {formatCurrency(scheme.monthlyAmount)}
+                    <span className="font-medium">{t("monthly_amount")}</span>{" "}
+                    {formatCurrency(scheme.monthlyAmount)}
                   </p>
                   <p>
-                    <span className="font-medium">{t('tenure')}</span> {scheme.tenure} {t('months')}
+                    <span className="font-medium">{t("tenure")}</span>{" "}
+                    {scheme.tenure} {t("months")}
                   </p>
                   <p>
-                    <span className="font-medium">{t('total_amount')}</span> {formatCurrency(scheme.totalAmount)}
+                    <span className="font-medium">{t("total_amount")}</span>{" "}
+                    {formatCurrency(scheme.totalAmount)}
                   </p>
                 </div>
                 <p className="text-sm text-gray-500 mt-4">
@@ -692,30 +700,36 @@ const App = () => {
                 </p>
               </div>
               <div className="mt-6 flex flex-col sm:flex-row gap-2">
-                {
-                  !isAdmin && (
-                                    <button
-                  onClick={() => onJoinPlan(scheme)}
-                  className="flex-1 flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
-                >
-                  <PlusIcon className="mr-2" /> {t('join')}
-                </button>
-                <div className="flex-1 flex gap-2">
+                {!isAdmin && (
                   <button
-                    onClick={() => { setSelectedScheme(scheme); setShowEditModal(true); }}
-                    className="flex-1 flex items-center justify-center text-blue-600 py-3 px-4 rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-colors transform hover:scale-105"
-                    title={t('edit_scheme_title')}
+                    onClick={() => onJoinPlan(scheme)}
+                    className="flex-1 flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
                   >
-                    <EditIcon />
+                    <PlusIcon className="mr-2" /> {t("join")}
                   </button>
-                  <button
-                    onClick={() => onDeleteScheme(scheme.id)}
-                    className="flex-1 flex items-center justify-center text-red-600 py-3 px-4 rounded-xl border-2 border-red-600 hover:bg-red-50 transition-colors transform hover:scale-105"
-                    title={t('delete_scheme_title')}
-                  >
-                    <TrashIcon />
-                  </button>
-                </div>
+                )}
+
+                {isAdmin && (
+                  <div className="flex-1 flex gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedScheme(scheme);
+                        setShowEditModal(true);
+                      }}
+                      className="flex-1 flex items-center justify-center text-blue-600 py-3 px-4 rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-colors transform hover:scale-105"
+                      title={t("edit_scheme_title")}
+                    >
+                      <EditIcon />
+                    </button>
+                    <button
+                      onClick={() => onDeleteScheme(scheme.id)}
+                      className="flex-1 flex items-center justify-center text-red-600 py-3 px-4 rounded-xl border-2 border-red-600 hover:bg-red-50 transition-colors transform hover:scale-105"
+                      title={t("delete_scheme_title")}
+                    >
+                      <TrashIcon />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -992,7 +1006,7 @@ const App = () => {
 
   // Deactivate Confirmation Modal
   const DeactivateConfirmModal = ({ onClose, onConfirm, currentStatus }) => {
-    console.log('DeactivateConfirmModal', currentStatus)
+
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full">
