@@ -78,7 +78,11 @@ const App = () => {
   const [showDeactivateConfirmModal, setShowDeactivateConfirmModal] = useState(false);
   const [userToDeactivate, setUserToDeactivate] = useState(null);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('language', lng);
+  };
   const __app_id = firebaseConfig.projectId;
 
   useEffect(() => {
@@ -435,6 +439,16 @@ const App = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+          <div className="flex justify-end mb-4">
+            <select
+              value={i18n.language}
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="border rounded p-1"
+            >
+              <option value="ta">{t('tamil')}</option>
+              <option value="en">{t('english')}</option>
+            </select>
+          </div>
           <h2 className="text-3xl font-bold text-center text-indigo-800 mb-6">{t('login_title')}</h2>
           <div className="grid grid-cols-1 gap-6">
             <form onSubmit={handleLogin} className="space-y-4">
@@ -692,30 +706,32 @@ const App = () => {
                 </p>
               </div>
               <div className="mt-6 flex flex-col sm:flex-row gap-2">
-                {
-                  !isAdmin && (
-                                    <button
-                  onClick={() => onJoinPlan(scheme)}
-                  className="flex-1 flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
-                >
-                  <PlusIcon className="mr-2" /> {t('join')}
-                </button>
-                <div className="flex-1 flex gap-2">
+                {!isAdmin && (
                   <button
-                    onClick={() => { setSelectedScheme(scheme); setShowEditModal(true); }}
-                    className="flex-1 flex items-center justify-center text-blue-600 py-3 px-4 rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-colors transform hover:scale-105"
-                    title={t('edit_scheme_title')}
+                    onClick={() => onJoinPlan(scheme)}
+                    className="flex-1 flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
                   >
-                    <EditIcon />
+                    <PlusIcon className="mr-2" /> {t('join')}
                   </button>
-                  <button
-                    onClick={() => onDeleteScheme(scheme.id)}
-                    className="flex-1 flex items-center justify-center text-red-600 py-3 px-4 rounded-xl border-2 border-red-600 hover:bg-red-50 transition-colors transform hover:scale-105"
-                    title={t('delete_scheme_title')}
-                  >
-                    <TrashIcon />
-                  </button>
-                </div>
+                )}
+                {isAdmin && (
+                  <div className="flex-1 flex gap-2">
+                    <button
+                      onClick={() => { setSelectedScheme(scheme); setShowEditModal(true); }}
+                      className="flex-1 flex items-center justify-center text-blue-600 py-3 px-4 rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-colors transform hover:scale-105"
+                      title={t('edit_scheme_title')}
+                    >
+                      <EditIcon />
+                    </button>
+                    <button
+                      onClick={() => onDeleteScheme(scheme.id)}
+                      className="flex-1 flex items-center justify-center text-red-600 py-3 px-4 rounded-xl border-2 border-red-600 hover:bg-red-50 transition-colors transform hover:scale-105"
+                      title={t('delete_scheme_title')}
+                    >
+                      <TrashIcon />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -1135,9 +1151,27 @@ const App = () => {
     <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
       <main className="flex flex-row">
               <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
+        <div className="md:hidden p-2 bg-white border-b-2 border-gray-200 flex justify-end">
+          <select
+            value={i18n.language}
+            onChange={(e) => changeLanguage(e.target.value)}
+            className="border rounded p-1"
+          >
+            <option value="ta">{t('tamil')}</option>
+            <option value="en">{t('english')}</option>
+          </select>
+        </div>
         <div className="p-6 md:flex flex-col h-full hidden">
-          <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center justify-between mb-8">
             <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
+            <select
+              value={i18n.language}
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="border rounded p-1"
+            >
+              <option value="ta">{t('tamil')}</option>
+              <option value="en">{t('english')}</option>
+            </select>
           </div>
           <ul className="space-y-2 flex-grow">
             <li>
