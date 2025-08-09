@@ -74,8 +74,9 @@ const App = () => {
   const [userId, setUserId] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [currentPage, setCurrentPage] = useState('Dashboard');
-  const [myProfile, setMyProfile] = useState(null); 
+  const [myProfile, setMyProfile] = useState(null);
   const [userPlans, setUserPlans] = useState([]);
+  const [walletGold, setWalletGold] = useState(0);
   const [allUsers, setAllUsers] = useState([]);
   const [schemes, setSchemes] = useState([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -174,6 +175,20 @@ const App = () => {
       };
     }
   }, [db, userId, user, __app_id, t]);
+
+  useEffect(() => {
+    if (db && userId) {
+      const walletRef = doc(db, `artifacts/${__app_id}/users/${userId}/wallet`, 'goldWallet');
+      const unsubscribeWallet = onSnapshot(walletRef, (docSnap) => {
+        if (docSnap.exists()) {
+          setWalletGold(docSnap.data().goldWeight || 0);
+        } else {
+          setWalletGold(0);
+        }
+      });
+      return () => unsubscribeWallet();
+    }
+  }, [db, userId, __app_id]);
 
   useEffect(() => {
     if (db) {
@@ -378,6 +393,25 @@ const App = () => {
         setModalMessage(t('payment_fail'));
         setShowModal(true);
         console.error('Error adding payment:', error);
+      }
+    }
+  };
+
+  const handleWithdrawPlan = async (plan) => {
+    if (db && userId && plan) {
+      try {
+        const walletRef = doc(db, `artifacts/${__app_id}/users/${userId}/wallet`, 'goldWallet');
+        const walletSnap = await getDoc(walletRef);
+        const currentWeight = walletSnap.exists() ? walletSnap.data().goldWeight || 0 : 0;
+        const newWeight = currentWeight + (plan.paidWeight || 0);
+        await setDoc(walletRef, { goldWeight: newWeight }, { merge: true });
+        await deleteDoc(doc(db, `artifacts/${__app_id}/users/${userId}/myPlans`, plan.id));
+        setModalMessage(t('withdraw_success'));
+        setShowModal(true);
+      } catch (error) {
+        setModalMessage(t('withdraw_fail'));
+        setShowModal(true);
+        console.error('Error withdrawing plan:', error);
       }
     }
   };
@@ -647,7 +681,7 @@ const App = () => {
   };
   
   // Dashboard Component
-  const Dashboard = ({ isAdmin, userPlans, allUsers, schemes, db }) => {
+  const Dashboard = ({ isAdmin, userPlans, allUsers, schemes, db, walletGold }) => {
     const [goldPrice, setGoldPrice] = useState(null);
     const [silverPrice, setSilverPrice] = useState(null);
     const [goldPrice24, setGoldPrice24] = useState(null);
@@ -761,6 +795,12 @@ const App = () => {
               <h3 className="text-xl font-semibold text-gray-900">{t('total_gold_weight')}</h3>
               <p className="text-3xl font-bold text-indigo-600 mt-2">
                 {totalWeight.toFixed(3)} g
+              </p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{t('wallet_gold')}</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">
+                {walletGold.toFixed(3)} g
               </p>
             </div>
             <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
@@ -1000,7 +1040,7 @@ const App = () => {
     );
   };
 
-  const MyPlans = ({ userPlans, onPaymentClick }) => {
+  const MyPlans = ({ userPlans, onPaymentClick, onWithdrawPlan }) => {
     const { t } = useTranslation();
     return (
       <div className="p-4 sm:p-6 lg:p-8">
@@ -1046,12 +1086,20 @@ const App = () => {
                       <p className="text-right text-sm text-gray-500 mt-1">{t('progress_completed', { progress: plan.progress.toFixed(2) })}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => onPaymentClick(plan)}
-                    className="mt-6 flex items-center justify-center w-full bg-green-500 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-green-600 transition-colors transform hover:scale-105"
-                  >
-                    <CreditCardIcon className="mr-2" /> {t('pay')}
-                  </button>
+                  <div className="mt-6 flex flex-col gap-2">
+                    <button
+                      onClick={() => onPaymentClick(plan)}
+                      className="flex items-center justify-center w-full bg-green-500 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-green-600 transition-colors transform hover:scale-105"
+                    >
+                      <CreditCardIcon className="mr-2" /> {t('pay')}
+                    </button>
+                    <button
+                      onClick={() => onWithdrawPlan(plan)}
+                      className="flex items-center justify-center w-full bg-red-500 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-red-600 transition-colors transform hover:scale-105"
+                    >
+                      {t('withdraw')}
+                    </button>
+                  </div>
                 </div>
               );
             })
@@ -1839,6 +1887,7 @@ const App = () => {
               allUsers={allUsers}
               schemes={schemes}
               db={db}
+              walletGold={walletGold}
             />
           )}
           {currentPage === "MyPlans" && !isAdmin && (
@@ -1848,6 +1897,7 @@ const App = () => {
                 setSelectedPlanForPayment(plan);
                 setShowPaymentModal(true);
               }}
+              onWithdrawPlan={handleWithdrawPlan}
             />
           )}
           {currentPage === "JoinPlans" && (

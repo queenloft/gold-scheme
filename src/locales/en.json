@@ -114,6 +114,7 @@
   "total_paid": "Total Paid",
   "total_due": "Total Due",
   "total_gold_weight": "Total Gold Weight",
+  "wallet_gold": "Wallet Gold",
   "tn_metal_prices": "Gold & Silver Price (Tamil Nadu)",
   "gold_price_per_gram": "Gold price (per g)",
   "silver_price_per_gram": "Silver price (per g)",
@@ -169,6 +170,9 @@
           "no_items_in_bill": "No items added to the bill.",
           "customer_list_title": "Customers",
           "deactivate": "Deactivate",
-          "activate": "Activate"
-          
+          "activate": "Activate",
+          "withdraw": "Withdraw",
+          "withdraw_success": "Plan withdrawn and gold added to wallet.",
+          "withdraw_fail": "Failed to withdraw plan."
+
 }
