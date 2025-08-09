@@ -22,6 +22,7 @@ import {
   updateDoc,
   deleteDoc,
   setDoc,
+  getDoc,
 } from 'firebase/firestore';
 
 // Tailwind CSS is assumed to be available
@@ -608,13 +609,24 @@ const App = () => {
   };
   
   // Dashboard Component
-  const Dashboard = ({ isAdmin, userPlans, allUsers, schemes }) => {
+  const Dashboard = ({ isAdmin, userPlans, allUsers, schemes, db }) => {
     const [goldPrice, setGoldPrice] = useState(null);
     const [silverPrice, setSilverPrice] = useState(null);
+    const [goldPrice24, setGoldPrice24] = useState(null);
 
     useEffect(() => {
       const fetchPrices = async () => {
         try {
+          if (db) {
+            const docSnap = await getDoc(doc(db, 'metalPrices', 'latest'));
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              if (data.goldPrice) setGoldPrice(data.goldPrice);
+              if (data.silverPrice) setSilverPrice(data.silverPrice);
+              if (data.goldPrice24k) setGoldPrice24(data.goldPrice24k);
+              return;
+            }
+          }
           const res = await fetch(
             'https://api.metalpriceapi.com/v1/latest?api_key=85121dcdae0e02977db7bb967e5d63bc&&base=INR&currencies=XAU,XAG'
           );
@@ -624,7 +636,9 @@ const App = () => {
             const silverRate = data.rates.XAG;
             if (goldRate) {
               const inrPerOunce = 1 / goldRate;
-              setGoldPrice(inrPerOunce / 31.1035);
+              const pureGoldPerGram = inrPerOunce / 31.1035;
+              setGoldPrice24(pureGoldPerGram);
+              setGoldPrice((pureGoldPerGram * 22) / 24);
             }
             if (silverRate) {
               const inrPerOunceSilver = 1 / silverRate;
@@ -636,7 +650,7 @@ const App = () => {
         }
       };
       fetchPrices();
-    }, []);
+    }, [db]);
 
     const { t } = useTranslation();
 
@@ -665,6 +679,9 @@ const App = () => {
               {goldPrice && silverPrice ? (
                 <div className="mt-2 text-indigo-600">
                   <p>{t('gold_price_per_gram')}: {formatCurrency(goldPrice)}</p>
+                  {goldPrice24 && (
+                    <p>{t('gold_24_price_per_gram')}: {formatCurrency(goldPrice24)}</p>
+                  )}
                   <p>{t('silver_price_per_gram')}: {formatCurrency(silverPrice)}</p>
                 </div>
               ) : (
@@ -713,6 +730,9 @@ const App = () => {
               {goldPrice && silverPrice ? (
                 <div className="mt-2 text-indigo-600">
                   <p>{t('gold_price_per_gram')}: {formatCurrency(goldPrice)}</p>
+                  {goldPrice24 && (
+                    <p>{t('gold_24_price_per_gram')}: {formatCurrency(goldPrice24)}</p>
+                  )}
                   <p>{t('silver_price_per_gram')}: {formatCurrency(silverPrice)}</p>
                 </div>
               ) : (
@@ -838,6 +858,105 @@ const App = () => {
           <button onClick={() => window.print()} className="w-full bg-indigo-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105 mt-4">
             {t('print_bill')}
           </button>
+        </div>
+      </div>
+    );
+  }; 
+
+  const GoldPriceEntry = ({ db }) => {
+    const [goldPrice, setGoldPrice] = useState('');
+    const [silverPrice, setSilverPrice] = useState('');
+    const [goldPrice24, setGoldPrice24] = useState('');
+    const [status, setStatus] = useState('');
+    const { t } = useTranslation();
+
+    useEffect(() => {
+      const loadPrices = async () => {
+        try {
+          const docSnap = await getDoc(doc(db, 'metalPrices', 'latest'));
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.goldPrice) setGoldPrice(data.goldPrice);
+            if (data.silverPrice) setSilverPrice(data.silverPrice);
+            if (data.goldPrice24k) setGoldPrice24(data.goldPrice24k);
+          } else {
+            const res = await fetch('https://api.metalpriceapi.com/v1/latest?api_key=85121dcdae0e02977db7bb967e5d63bc&&base=INR&currencies=XAU,XAG');
+            const data = await res.json();
+            if (data && data.rates) {
+              const goldRate = data.rates.XAU;
+              const silverRate = data.rates.XAG;
+              if (goldRate) {
+                const inrPerOunce = 1 / goldRate;
+                const pureGoldPerGram = inrPerOunce / 31.1035;
+                setGoldPrice24(pureGoldPerGram);
+                setGoldPrice((pureGoldPerGram * 22) / 24);
+              }
+              if (silverRate) {
+                const inrPerOunceSilver = 1 / silverRate;
+                setSilverPrice(inrPerOunceSilver / 31.1035);
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Failed to load prices:', err);
+        }
+      };
+      if (db) loadPrices();
+    }, [db]);
+
+    const handleUpdate = async () => {
+      try {
+        await setDoc(doc(db, 'metalPrices', 'latest'), {
+          goldPrice: parseFloat(goldPrice),
+          silverPrice: parseFloat(silverPrice),
+          goldPrice24k: parseFloat(goldPrice24),
+          updatedAt: new Date().toISOString(),
+        });
+        setStatus(t('prices_update_success'));
+      } catch (err) {
+        console.error('Failed to update prices:', err);
+        setStatus(t('prices_update_fail'));
+      }
+    };
+
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('gold_price_entry')}</h2>
+        <div className="bg-white rounded-xl shadow-lg p-6 space-y-4 max-w-md">
+          <div>
+            <label className="block text-gray-700 mb-1">{t('gold_rate_today')}</label>
+            <input
+              type="number"
+              value={goldPrice}
+              onChange={(e) => setGoldPrice(e.target.value)}
+              className="w-full border rounded p-2"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-1">{t('silver_rate_today')}</label>
+            <input
+              type="number"
+              value={silverPrice}
+              onChange={(e) => setSilverPrice(e.target.value)}
+              className="w-full border rounded p-2"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-1">{t('gold_24_rate_today')}</label>
+            <input
+              type="number"
+              value={goldPrice24}
+              onChange={(e) => setGoldPrice24(e.target.value)}
+              className="w-full border rounded p-2"
+            />
+          </div>
+          <button
+            onClick={handleUpdate}
+            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-xl hover:bg-indigo-700"
+          >
+            {t('update')}
+          </button>
+          {status && <p className="text-green-600 mt-2">{status}</p>}
         </div>
       </div>
     );
@@ -1548,6 +1667,21 @@ const App = () => {
                 </button>
               </li>
             )}
+            {isAdmin && (
+              <li>
+                <button
+                  onClick={() => setCurrentPage("GoldPriceEntry")}
+                  className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                    currentPage === "GoldPriceEntry"
+                      ? "bg-indigo-50 text-indigo-800 font-semibold"
+                      : "text-gray-600"
+                  }`}
+                >
+                  <SettingsIcon className="mr-3" />
+                  {t("gold_price_entry")}
+                </button>
+              </li>
+            )}
           </ul>
            <div className=" p-2 bg-white border-b-2 border-gray-200 flex justify-end">
           <select
@@ -1638,6 +1772,17 @@ const App = () => {
               <span className="text-xs">{t("print_bill")}</span>
             </button>
           )}
+          {isAdmin && (
+            <button
+              onClick={() => setCurrentPage("GoldPriceEntry")}
+              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                currentPage === "GoldPriceEntry" ? "text-indigo-800" : "text-gray-500"
+              }`}
+            >
+              <SettingsIcon /> {" "}
+              <span className="text-xs">{t("gold_price_entry_nav")}</span>
+            </button>
+          )}
         </div>
       </nav>
         <div className="container mx-auto">
@@ -1647,6 +1792,7 @@ const App = () => {
               userPlans={userPlans}
               allUsers={allUsers}
               schemes={schemes}
+              db={db}
             />
           )}
           {currentPage === "MyPlans" && !isAdmin && (
@@ -1712,6 +1858,14 @@ const App = () => {
             />
           )}
           {currentPage === "PosTerminalScreen" && !isAdmin && (
+            <div className="p-6 text-center text-gray-500 text-lg">
+              {t("unauthorized_page")}
+            </div>
+          )}
+          {currentPage === "GoldPriceEntry" && isAdmin && (
+            <GoldPriceEntry db={db} />
+          )}
+          {currentPage === "GoldPriceEntry" && !isAdmin && (
             <div className="p-6 text-center text-gray-500 text-lg">
               {t("unauthorized_page")}
             </div>
