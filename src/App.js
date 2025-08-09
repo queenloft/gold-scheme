@@ -16,6 +16,9 @@ import {
   getFirestore,
   collection,
   query,
+  getDocs,
+  orderBy,
+  limit,
   onSnapshot,
   doc,
   addDoc,
@@ -47,6 +50,15 @@ const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" heig
 const UsersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>);
 const BillsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-receipt"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 7h8"/><path d="M8 12h8"/><path d="M8 17h8"/></svg>);
 const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>);
+const TransactionsIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-text">
+    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" x2="8" y1="13" y2="13"/>
+    <line x1="16" x2="8" y1="17" y2="17"/>
+    <line x1="10" x2="8" y1="9" y2="9"/>
+  </svg>
+);
 
 // Helper function to format currency
 const formatCurrency = (amount) => {
@@ -1516,7 +1528,128 @@ const App = () => {
       </div>
     );
   };
-  
+  const LatestTransactionScreen = ({ db, userId }) => {
+    const [transaction, setTransaction] = useState(null);
+    const [plan, setPlan] = useState(null);
+    const { t } = useTranslation();
+
+    useEffect(() => {
+      const fetchTxn = async () => {
+        if (db && userId) {
+          const q = query(
+            collection(db, `artifacts/${__app_id}/users/${userId}/paymentEntries`),
+            orderBy('date', 'desc'),
+            limit(1)
+          );
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            const txn = { id: snap.docs[0].id, ...snap.docs[0].data() };
+            setTransaction(txn);
+            const planSnap = await getDoc(
+              doc(db, `artifacts/${__app_id}/users/${userId}/myPlans`, txn.planId)
+            );
+            if (planSnap.exists()) {
+              setPlan({ id: planSnap.id, ...planSnap.data() });
+            }
+          }
+        }
+      };
+      fetchTxn();
+    }, [db, userId]);
+
+    if (!transaction) {
+      return (
+        <div className="p-4 sm:p-6 lg:p-8">
+          <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('latest_transaction')}</h2>
+          <p className="text-center text-gray-500">{t('no_transactions')}</p>
+        </div>
+      );
+    }
+
+    const savedGold = (transaction.amount / 20000) * 2.22;
+
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('latest_transaction')}</h2>
+        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+          {plan && (
+            <p className="mb-2"><span className="font-medium">{t('scheme_title')}</span> {plan.title}</p>
+          )}
+          <p className="mb-2"><span className="font-medium">{t('payment')}</span> {formatCurrency(transaction.amount)}</p>
+          <p className="mb-2"><span className="font-medium">{t('created_at')}</span> {new Date(transaction.date).toLocaleString('ta-IN')}</p>
+          <p><span className="font-medium">{t('saved_gold')}</span> {savedGold.toFixed(2)} g</p>
+        </div>
+      </div>
+    );
+  };
+
+  const AdminTransactionsScreen = ({ db, allUsers }) => {
+    const [transactions, setTransactions] = useState([]);
+    const { t } = useTranslation();
+
+    useEffect(() => {
+      const fetchAll = async () => {
+        if (db) {
+          const list = [];
+          for (const u of allUsers) {
+            const uid = u.userId || u.id;
+            const q = query(
+              collection(db, `artifacts/${__app_id}/users/${uid}/paymentEntries`),
+              orderBy('date', 'desc')
+            );
+            const snap = await getDocs(q);
+            for (const d of snap.docs) {
+              let planTitle = d.data().planId;
+              try {
+                const planSnap = await getDoc(
+                  doc(db, `artifacts/${__app_id}/users/${uid}/myPlans`, d.data().planId)
+                );
+                if (planSnap.exists()) planTitle = planSnap.data().title;
+              } catch (e) {}
+              list.push({ id: d.id, user: u, planTitle, ...d.data() });
+            }
+          }
+          list.sort((a, b) => new Date(b.date) - new Date(a.date));
+          setTransactions(list);
+        }
+      };
+      fetchAll();
+    }, [db, allUsers]);
+
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('transactions')}</h2>
+        {transactions.length === 0 ? (
+          <p className="text-center text-gray-500">{t('no_transactions')}</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white rounded-xl shadow-lg">
+              <thead>
+                <tr className="bg-indigo-600 text-white">
+                  <th className="py-2 px-4">{t('user')}</th>
+                  <th className="py-2 px-4">{t('scheme_title')}</th>
+                  <th className="py-2 px-4">{t('payment')}</th>
+                  <th className="py-2 px-4">{t('saved_gold')}</th>
+                  <th className="py-2 px-4">{t('created_at')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((tx) => (
+                  <tr key={tx.id} className="border-b">
+                    <td className="py-2 px-4">{tx.user.name || tx.user.email}</td>
+                    <td className="py-2 px-4">{tx.planTitle}</td>
+                    <td className="py-2 px-4">{formatCurrency(tx.amount)}</td>
+                    <td className="py-2 px-4">{((tx.amount / 20000) * 2.22).toFixed(2)} g</td>
+                    <td className="py-2 px-4">{new Date(tx.date).toLocaleDateString('ta-IN')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Deactivate Confirmation Modal
   const DeactivateConfirmModal = ({ onClose, onConfirm, currentStatus }) => {
@@ -1720,6 +1853,19 @@ const App = () => {
             </li>
             <li>
               <button
+                onClick={() => setCurrentPage("TransactionsScreen")}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                  currentPage === "TransactionsScreen"
+                    ? "bg-indigo-50 text-indigo-800 font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                <TransactionsIcon className="mr-3" />
+                {t("transactions")}
+              </button>
+            </li>
+            <li>
+              <button
                 onClick={() => setCurrentPage("UserScreen")}
                 className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
                   currentPage === "UserScreen"
@@ -1830,6 +1976,17 @@ const App = () => {
             <span className="text-xs">{t("join_nav")}</span>
           </button>
           <button
+            onClick={() => setCurrentPage("TransactionsScreen")}
+            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+              currentPage === "TransactionsScreen"
+                ? "text-indigo-800"
+                : "text-gray-500"
+            }`}
+          >
+            <TransactionsIcon /> {" "}
+            <span className="text-xs">{t("transactions_nav")}</span>
+          </button>
+          <button
             onClick={() => setCurrentPage("UserScreen")}
             className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
               currentPage === "UserScreen"
@@ -1909,6 +2066,13 @@ const App = () => {
               onDeleteScheme={handleDeleteScheme}
               isAdmin={isAdmin}
             />
+          )}
+          {currentPage === "TransactionsScreen" && (
+            isAdmin ? (
+              <AdminTransactionsScreen db={db} allUsers={allUsers} />
+            ) : (
+              <LatestTransactionScreen db={db} userId={userId} />
+            )
           )}
           {currentPage === "UserScreen" && (
             <UserScreen
