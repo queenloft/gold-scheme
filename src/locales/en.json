@@ -64,7 +64,7 @@
   "tenure_placeholder": "Tenure (months)",
   "vatDiscountPercentage": "Vat Discount % ",
     "finalSettlementDiscount": "finalSettlementDiscount INR ",
-    "discount_per_gram": "Discounts per gram ",
+    "discountPerGram": "Discounts per gram ",
   "description": "Description",
   "cancel": "Cancel",
   "add": "Add",
