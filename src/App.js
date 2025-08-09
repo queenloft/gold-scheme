@@ -25,7 +25,13 @@ import {
 } from 'firebase/firestore';
 
 // Tailwind CSS is assumed to be available
-// import 'tailwindcss/tailwind.css';
+import 'tailwindcss/tailwind.css';
+
+// i18n configuration for translation
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+
 
 // lucide-react icons
 const HomeIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>);
@@ -38,6 +44,8 @@ const CreditCardIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24"
 const EditIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-edit"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>);
 const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>);
 const UsersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>);
+const BillsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-receipt"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 7h8"/><path d="M8 12h8"/><path d="M8 17h8"/></svg>);
+const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>);
 
 // Helper function to format currency
 const formatCurrency = (amount) => {
@@ -77,6 +85,12 @@ const App = () => {
   const [showModal, setShowModal] = useState(false);
   const [showDeactivateConfirmModal, setShowDeactivateConfirmModal] = useState(false);
   const [userToDeactivate, setUserToDeactivate] = useState(null);
+  const [items, setItems] = useState([
+    { id: '1', name: 'Gold Chain', salePrice: 32000, hsn: '71131900', purity: '22K', weight: 6.230, labour: 1500 },
+    { id: '2', name: 'Silver', salePrice: 38000, hsn: '71131900', purity: '24K', weight: 8.5, labour: 2000 },
+  ]);
+  const [billItems, setBillItems] = useState([]);
+  const [posCustomerName, setPosCustomerName] = useState('');
 
   const { t, i18n } = useTranslation();
   const changeLanguage = (lng) => {
@@ -160,11 +174,10 @@ const App = () => {
         unsubscribeUser();
       };
     }
-  }, [db, userId, user, __app_id]);
+  }, [db, userId, user, __app_id, t]);
 
   useEffect(() => {
     if (db) {
-      console.log(__app_id)
       const qSchemes = query(collection(db, `artifacts/${__app_id}/joinSchemes`));
       const unsubscribeSchemes = onSnapshot(qSchemes, (snapshot) => {
         const schemeList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -593,7 +606,7 @@ const App = () => {
       </div>
     );
   };
-
+  
   // Dashboard Component
   const Dashboard = ({ isAdmin, userPlans, allUsers, schemes }) => {
     const [goldPrice, setGoldPrice] = useState(null);
@@ -624,6 +637,8 @@ const App = () => {
       };
       fetchPrices();
     }, []);
+
+    const { t } = useTranslation();
 
     if (isAdmin) {
       const totalUsers = allUsers.length;
@@ -710,8 +725,126 @@ const App = () => {
     }
   };
 
-  // MyPlans Screen Component
+  // PosTerminalScreen Component
+  const PosTerminalScreen = ({ items, billItems, setBillItems, posCustomerName, setPosCustomerName }) => {
+    const { t } = useTranslation();
+    const [selectedItem, setSelectedItem] = useState('');
+    const [quantity, setQuantity] = useState(1);
+    const [discount, setDiscount] = useState(0);
+
+    const handleAddItem = () => {
+      if (selectedItem && quantity > 0) {
+        const item = items.find(i => i.id === selectedItem);
+        if (item) {
+          const newItem = {
+            ...item,
+            billId: Date.now(),
+            quantity: quantity,
+            payableAmount: (item.salePrice * quantity) - discount,
+            netWeight: item.weight * quantity,
+          };
+          setBillItems(prev => [...prev, newItem]);
+        }
+      }
+    };
+
+    const handleRemoveItem = (billId) => {
+      setBillItems(prev => prev.filter(item => item.billId !== billId));
+    };
+
+    const totalItems = billItems.reduce((sum, item) => sum + item.quantity, 0);
+    const totalTaxableAmount = billItems.reduce((sum, item) => sum + item.payableAmount, 0);
+    const totalTax = totalTaxableAmount * 0.03; // Assuming 3% GST
+    const totalPayable = totalTaxableAmount + totalTax;
+
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row gap-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 flex-1">
+          <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('pos_terminal')}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700">{t('customer_name_label')}</label>
+              <input type="text" value={posCustomerName} onChange={(e) => setPosCustomerName(e.target.value)} className="mt-1 p-2 border rounded-md" placeholder={t('customer_name_label')} />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700">{t('select_item_label')}</label>
+              <select value={selectedItem} onChange={(e) => setSelectedItem(e.target.value)} className="mt-1 p-2 border rounded-md">
+                <option value="">{t('select_item_label')}</option>
+                {items.map(item => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700">{t('quantity_label')}</label>
+              <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} className="mt-1 p-2 border rounded-md" />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700">{t('discount_label')}</label>
+              <input type="number" value={discount} onChange={(e) => setDiscount(e.target.value)} className="mt-1 p-2 border rounded-md" />
+            </div>
+          </div>
+          <button onClick={handleAddItem} className="w-full bg-indigo-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105 mb-6">
+            {t('add_item')}
+          </button>
+
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">{t('selected_items')}</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('item_name_label')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('quantity_label')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('sale_price_label')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('discount_label')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('payable_amount_label')}</th>
+                  <th className="px-6 py-3"></th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {billItems.map(item => (
+                  <tr key={item.billId}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.quantity}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(item.salePrice)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(item.discount || 0)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(item.payableAmount)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button onClick={() => handleRemoveItem(item.billId)} className="text-red-600 hover:text-red-900">
+                        {t('remove_item')}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-lg p-6 md:w-1/3 space-y-4">
+          <h3 className="text-xl font-semibold text-gray-900">{t('bill_summary')}</h3>
+          <div className="flex justify-between border-t border-gray-200 pt-4">
+            <span className="text-gray-500">{t('total_taxable_amount')}:</span>
+            <span className="font-semibold">{formatCurrency(totalTaxableAmount)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">{t('total_tax')}:</span>
+            <span className="font-semibold">{formatCurrency(totalTax)}</span>
+          </div>
+          <div className="flex justify-between font-bold text-lg border-t-2 border-gray-400 pt-4">
+            <span>{t('total_payable')}:</span>
+            <span>{formatCurrency(totalPayable)}</span>
+          </div>
+          <button onClick={() => window.print()} className="w-full bg-indigo-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors transform hover:scale-105 mt-4">
+            {t('print_bill')}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const MyPlans = ({ userPlans, onPaymentClick }) => {
+    const { t } = useTranslation();
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('my_plans')}</h2>
@@ -773,17 +906,17 @@ const App = () => {
     );
   };
   
-  // JoinPlans Screen Component
   const JoinPlans = ({ schemes, onJoinPlan, onAddScheme, onEditScheme, onDeleteScheme, isAdmin }) => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedScheme, setSelectedScheme] = useState(null);
+    const { t } = useTranslation();
   
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-indigo-800">
-            {t("join_plans")}
+            {t("plans")}
           </h2>
           {isAdmin && (
             <button
@@ -820,6 +953,7 @@ const App = () => {
                     <span className="font-medium">{t("tenure")}</span>{" "}
                     {scheme.tenure} {t("months")}
                   </p>
+                    
                      <p>
                     <span className="font-medium">{t("discountPerGram")}</span>{" "}
                     {scheme.discountPerGram}
@@ -831,7 +965,7 @@ const App = () => {
                    <p>
                     <span className="font-medium">{t("finalSettlementDiscount")}</span>{" "}
                     {scheme.finalSettlementDiscount}
-                  </p>
+                    </p>
                   <p>
                     <span className="font-medium">{t("total_amount")}</span>{" "}
                     {formatCurrency(scheme.totalAmount)}
@@ -904,6 +1038,7 @@ const App = () => {
     const [discountPerGram, setDiscountPerGram] = useState(0)
     const [vatDiscountPercentage, setVatDiscountPercentage] = useState(0)
     const [finalSettlementDiscount, setFinalSettlementDiscount] = useState(0)
+    const { t } = useTranslation();
   
     const handleSubmit = (e) => {
       e.preventDefault();
@@ -915,7 +1050,7 @@ const App = () => {
         subtitle,
         description,
         totalAmount: parseFloat(monthlyAmount) * parseInt(tenure),
-        discountPerGram,
+         discountPerGram,
         vatDiscountPercentage,
         finalSettlementDiscount
       });
@@ -932,11 +1067,10 @@ const App = () => {
             <input type="text" placeholder={t('group_code_placeholder')} value={groupCode} onChange={(e) => setGroupCode(e.target.value)} className="w-full p-3 border rounded-md" required />
             <input type="number" placeholder={t('monthly_amount_placeholder')} value={monthlyAmount} onChange={(e) => setMonthlyAmount(e.target.value)} className="w-full p-3 border rounded-md" required />
             <input type="number" placeholder={t('tenure_placeholder')} value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-3 border rounded-md" required />
-                        <input type="number" placeholder={t('discount_per_gram')} value={discountPerGram} onChange={(e) => setDiscountPerGram(e.target.value)} className="w-full p-3 border rounded-md" required />
+             <input type="number" placeholder={t('discount_per_gram')} value={discountPerGram} onChange={(e) => setDiscountPerGram(e.target.value)} className="w-full p-3 border rounded-md" required />
  <input type="number" placeholder={t('vatDiscountPercentage')} value={vatDiscountPercentage} onChange={(e) => setVatDiscountPercentage(e.target.value)} className="w-full p-3 border rounded-md" required />
  <input type="number" placeholder={t('finalSettlementDiscount')} value={finalSettlementDiscount} onChange={(e) => setFinalSettlementDiscount(e.target.value)} className="w-full p-3 border rounded-md" required />
-
-            <textarea placeholder={t('description')} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
+ <textarea placeholder={t('description')} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
             <div className="flex gap-4">
               <button type="button" onClick={onClose} className="flex-1 py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors">{t('cancel')}</button>
               <button type="submit" className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors">{t('add')}</button>
@@ -955,9 +1089,10 @@ const App = () => {
     const [title, setTitle] = useState(scheme.title);
     const [subtitle, setSubtitle] = useState(scheme.subtitle);
     const [description, setDescription] = useState(scheme.description);
-    const [discountPerGram, setDiscountPerGram] = useState(scheme.discountPerGram)
+     const [discountPerGram, setDiscountPerGram] = useState(scheme.discountPerGram)
     const [vatDiscountPercentage, setVatDiscountPercentage] = useState(scheme.vatDiscountPercentage)
     const [finalSettlementDiscount, setFinalSettlementDiscount] = useState(scheme.finalSettlementDiscount)
+    const { t } = useTranslation();
   
     const handleSubmit = (e) => {
       e.preventDefault();
@@ -983,7 +1118,7 @@ const App = () => {
             <input type="text" placeholder={t('group_code_placeholder')} value={groupCode} onChange={(e) => setGroupCode(e.target.value)} className="w-full p-3 border rounded-md" required />
             <input type="number" placeholder={t('monthly_amount_placeholder')} value={monthlyAmount} onChange={(e) => setMonthlyAmount(e.target.value)} className="w-full p-3 border rounded-md" required />
             <input type="number" placeholder={t('tenure_placeholder')} value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-3 border rounded-md" required />
-              <input type="number" placeholder={t('discount_per_gram')} value={discountPerGram} onChange={(e) => setDiscountPerGram(e.target.value)} className="w-full p-3 border rounded-md" required />
+             <input type="number" placeholder={t('discount_per_gram')} value={discountPerGram} onChange={(e) => setDiscountPerGram(e.target.value)} className="w-full p-3 border rounded-md" required />
  <input type="number" placeholder={t('vatDiscountPercentage')} value={vatDiscountPercentage} onChange={(e) => setVatDiscountPercentage(e.target.value)} className="w-full p-3 border rounded-md" required />
  <input type="number" placeholder={t('finalSettlementDiscount')} value={finalSettlementDiscount} onChange={(e) => setFinalSettlementDiscount(e.target.value)} className="w-full p-3 border rounded-md" required />
 
@@ -1000,6 +1135,7 @@ const App = () => {
 
   // UserScreen Component
   const UserScreen = ({ user, myProfile, userPlans, onToggleUserActive, onLogout, setCurrentPage }) => {
+    const { t } = useTranslation();
     const totalSchemes = userPlans.length;
     const totalDue = userPlans.reduce((sum, plan) => sum + (plan.totalAmount - plan.paidAmount), 0);
     const activeStatus = myProfile?.active ? 'Active' : 'Deactivated';
@@ -1082,6 +1218,7 @@ const App = () => {
   const EditUserScreen = ({ myProfile, onEditProfile, setCurrentPage }) => {
     const [name, setName] = useState(myProfile?.name || '');
     const [mobile, setMobile] = useState(myProfile?.mobile || '');
+    const { t } = useTranslation();
 
     const handleSubmit = (e) => {
       e.preventDefault();
@@ -1134,6 +1271,7 @@ const App = () => {
 
   // AllUsersScreen Component
   const AllUsersScreen = ({ allUsers, onToggleUserActive }) => {
+    const { t } = useTranslation();
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('all_users')}</h2>
@@ -1176,14 +1314,14 @@ const App = () => {
 
   // Deactivate Confirmation Modal
   const DeactivateConfirmModal = ({ onClose, onConfirm, currentStatus }) => {
-
+    const { t } = useTranslation();
+    const statusText = currentStatus ? t('deactivate') : t('activate');
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full">
           <h3 className="text-xl font-bold text-red-600 text-center mb-4">{t('confirm_title')}</h3>
           <p className="text-gray-800 text-center mb-6">
-            {t('confirm_deactivate_message', { status: !currentStatus? "activate" : "deactivate" })}
-            
+            {t('confirm_deactivate_message', { status: statusText })}
           </p>
           <div className="flex gap-4">
             <button
@@ -1206,6 +1344,7 @@ const App = () => {
   
   // Custom Modal for Messages
   const MessageModal = ({ message, onClose }) => {
+    const { t } = useTranslation();
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full">
@@ -1223,6 +1362,7 @@ const App = () => {
   
   // Add Payment Modal Component
   const PaymentModal = ({ plan, onClose, onAddPayment, paymentAmount, setPaymentAmount, paymentReference, setPaymentReference }) => {
+    const { t } = useTranslation();
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full m-4">
@@ -1292,7 +1432,6 @@ const App = () => {
                 onClose={() => setShowModal(false)}
               />
             )}
-
             <RegisterScreen
               onRegister={handleRegister}
               setCurrentPage={setCurrentPage}
@@ -1308,9 +1447,9 @@ const App = () => {
               onClose={() => setShowModal(false)}
             />
           )}
-
           <Login authInstance={auth} setCurrentPage={setCurrentPage} />
-        </>);
+        </>
+        );
     }
   }
 
@@ -1319,85 +1458,98 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
       <main className="flex flex-row">
-        <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
-          <div className="p-6 md:flex flex-col h-full hidden">
-            <div className="flex items-center justify-center mb-8">
-              <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
-            </div>
-            <ul className="space-y-2 flex-grow">
+      <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-64 md:h-screen bg-white shadow-xl md:rounded-r-3xl z-40">
+        <div className="p-6 md:flex flex-col h-full hidden">
+          <div className="flex items-center justify-center mb-8">
+            <h1 className="text-2xl font-bold text-indigo-800">DigiGold</h1>
+          </div>
+          <ul className="space-y-2 flex-grow">
+            <li>
+              <button
+                onClick={() => setCurrentPage("Dashboard")}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                  currentPage === "Dashboard"
+                    ? "bg-indigo-50 text-indigo-800 font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                <HomeIcon className="mr-3" />
+                {t("dashboard")}
+              </button>
+            </li>
+            {!isAdmin && (
               <li>
                 <button
-                  onClick={() => setCurrentPage("Dashboard")}
+                  onClick={() => setCurrentPage("MyPlans")}
                   className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                    currentPage === "Dashboard"
+                    currentPage === "MyPlans"
                       ? "bg-indigo-50 text-indigo-800 font-semibold"
                       : "text-gray-600"
                   }`}
                 >
-                  <HomeIcon className="mr-3" />
-                  {t("dashboard")}
+                  <WalletIcon className="mr-3" />
+                  {t("my_plans")}
                 </button>
               </li>
-              {!isAdmin && (
-                <li>
-                  <button
-                    onClick={() => setCurrentPage("MyPlans")}
-                    className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                      currentPage === "MyPlans"
-                        ? "bg-indigo-50 text-indigo-800 font-semibold"
-                        : "text-gray-600"
-                    }`}
-                  >
-                    <WalletIcon className="mr-3" />
-                    {t("my_plans")}
-                  </button>
-                </li>
-              )}
-
+            )}
+            <li>
+              <button
+                onClick={() => setCurrentPage("JoinPlans")}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                  currentPage === "JoinPlans"
+                    ? "bg-indigo-50 text-indigo-800 font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                <PlusIcon className="mr-3" />
+                {t("plans")}
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setCurrentPage("UserScreen")}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                  currentPage === "UserScreen"
+                    ? "bg-indigo-50 text-indigo-800 font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                <UserIcon className="mr-3" />
+                {t("profile")}
+              </button>
+            </li>
+            {isAdmin && (
               <li>
                 <button
-                  onClick={() => setCurrentPage("JoinPlans")}
+                  onClick={() => setCurrentPage("AllUsersScreen")}
                   className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                    currentPage === "JoinPlans"
+                    currentPage === "AllUsersScreen"
                       ? "bg-indigo-50 text-indigo-800 font-semibold"
                       : "text-gray-600"
                   }`}
                 >
-                  <PlusIcon className="mr-3" />
-                  {t("plans")}
+                  <UsersIcon className="mr-3" />
+                  {t("all_users")}
                 </button>
               </li>
+            )}
+            {isAdmin && (
               <li>
                 <button
-                  onClick={() => setCurrentPage("UserScreen")}
+                  onClick={() => setCurrentPage("PosTerminalScreen")}
                   className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                    currentPage === "UserScreen"
+                    currentPage === "PosTerminalScreen"
                       ? "bg-indigo-50 text-indigo-800 font-semibold"
                       : "text-gray-600"
                   }`}
                 >
-                  <UserIcon className="mr-3" />
-                  {t("profile")}
+                  <BillsIcon className="mr-3" />
+                  {t("print_bill")}
                 </button>
               </li>
-              {isAdmin && (
-                <li>
-                  <button
-                    onClick={() => setCurrentPage("AllUsersScreen")}
-                    className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
-                      currentPage === "AllUsersScreen"
-                        ? "bg-indigo-50 text-indigo-800 font-semibold"
-                        : "text-gray-600"
-                    }`}
-                  >
-                    <UsersIcon className="mr-3" />
-                    {t("all_users")}
-                  </button>
-                </li>
-              )}
-            </ul>
-
-                        <div className=" p-2 bg-white border-b-2 border-gray-200 flex justify-end">
+            )}
+          </ul>
+           <div className=" p-2 bg-white border-b-2 border-gray-200 flex justify-end">
           <select
             value={i18n.language}
             onChange={(e) => changeLanguage(e.target.value)}
@@ -1407,32 +1559,28 @@ const App = () => {
             <option value="en">{t('english')}</option>
           </select>
         </div>
-            <div className="mt-8">
-              
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
-              >
-                <LogOutIcon className="mr-2" /> {" "}
-                {t("logout")}
-              </button>
-            </div>
-          </div>
-          <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
-
+          <div className="mt-8">
             <button
-              onClick={() => setCurrentPage("Dashboard")}
-              className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                currentPage === "Dashboard" ? "text-indigo-800" : "text-gray-500"
-              }`}
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center p-3 rounded-xl transition-colors text-white bg-gray-500 hover:bg-gray-600"
             >
-              <HomeIcon />
-              <span className="text-xs">{t("dashboard_nav")}</span>
+              <LogOutIcon className="mr-2" /> {" "}
+              {t("logout")}
             </button>
-
-            {
-            !isAdmin && (
-              <button
+          </div>
+        </div>
+        <div className="md:hidden flex justify-around p-2 bg-white border-t-2 border-gray-200">
+          <button
+            onClick={() => setCurrentPage("Dashboard")}
+            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+              currentPage === "Dashboard" ? "text-indigo-800" : "text-gray-500"
+            }`}
+          >
+            <HomeIcon />
+            <span className="text-xs">{t("dashboard_nav")}</span>
+          </button>
+          {!isAdmin && (
+            <button
               onClick={() => setCurrentPage("MyPlans")}
               className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
                 currentPage === "MyPlans" ? "text-indigo-800" : "text-gray-500"
@@ -1441,45 +1589,57 @@ const App = () => {
               <WalletIcon /> {" "}
               <span className="text-xs">{t("plans_nav")}</span>
             </button>
-            )
-           }
+          )}
+          <button
+            onClick={() => setCurrentPage("JoinPlans")}
+            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+              currentPage === "JoinPlans"
+                ? "text-indigo-800"
+                : "text-gray-500"
+            }`}
+          >
+            <PlusIcon /> {" "}
+            <span className="text-xs">{t("join_nav")}</span>
+          </button>
+          <button
+            onClick={() => setCurrentPage("UserScreen")}
+            className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+              currentPage === "UserScreen"
+                ? "text-indigo-800"
+                : "text-gray-500"
+            }`}
+          >
+            <UserIcon /> {" "}
+            <span className="text-xs">{t("profile_nav")}</span>
+          </button>
+          {isAdmin && (
             <button
-              onClick={() => setCurrentPage("JoinPlans")}
+              onClick={() => setCurrentPage("AllUsersScreen")}
               className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                currentPage === "JoinPlans"
+                currentPage === "AllUsersScreen"
                   ? "text-indigo-800"
                   : "text-gray-500"
               }`}
             >
-              <PlusIcon /> {" "}
-              <span className="text-xs">{t("join_nav")}</span>
+              <UsersIcon /> {" "}
+              <span className="text-xs">{t("users_nav")}</span>
             </button>
+          )}
+          {isAdmin && (
             <button
-              onClick={() => setCurrentPage("UserScreen")}
+              onClick={() => setCurrentPage("PosTerminalScreen")}
               className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                currentPage === "UserScreen"
+                currentPage === "PosTerminalScreen"
                   ? "text-indigo-800"
                   : "text-gray-500"
               }`}
             >
-              <UserIcon /> {" "}
-              <span className="text-xs">{t("profile_nav")}</span>
+              <BillsIcon /> {" "}
+              <span className="text-xs">{t("print_bill")}</span>
             </button>
-            {isAdmin && (
-              <button
-                onClick={() => setCurrentPage("AllUsersScreen")}
-                className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
-                  currentPage === "AllUsersScreen"
-                    ? "text-indigo-800"
-                    : "text-gray-500"
-                }`}
-              >
-                <UsersIcon /> {" "}
-                <span className="text-xs">{t("users_nav")}</span>
-              </button>
-            )}
-          </div>
-        </nav>
+          )}
+        </div>
+      </nav>
         <div className="container mx-auto">
           {currentPage === "Dashboard" && (
             <Dashboard
@@ -1489,7 +1649,7 @@ const App = () => {
               schemes={schemes}
             />
           )}
-          {currentPage === "MyPlans" && (
+          {currentPage === "MyPlans" && !isAdmin && (
             <MyPlans
               userPlans={userPlans}
               onPaymentClick={(plan) => {
@@ -1538,6 +1698,20 @@ const App = () => {
             />
           )}
           {currentPage === "AllUsersScreen" && !isAdmin && (
+            <div className="p-6 text-center text-gray-500 text-lg">
+              {t("unauthorized_page")}
+            </div>
+          )}
+          {currentPage === "PosTerminalScreen" && isAdmin && (
+            <PosTerminalScreen
+              items={items}
+              billItems={billItems}
+              setBillItems={setBillItems}
+              posCustomerName={posCustomerName}
+              setPosCustomerName={setPosCustomerName}
+            />
+          )}
+          {currentPage === "PosTerminalScreen" && !isAdmin && (
             <div className="p-6 text-center text-gray-500 text-lg">
               {t("unauthorized_page")}
             </div>
