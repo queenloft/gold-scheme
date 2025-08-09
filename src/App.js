@@ -23,6 +23,7 @@ import {
   deleteDoc,
   setDoc,
 } from 'firebase/firestore';
+import BillEntry from './BillEntry';
 
 // Tailwind CSS is assumed to be available
 // import 'tailwindcss/tailwind.css';
@@ -38,6 +39,26 @@ const CreditCardIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24"
 const EditIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-edit"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>);
 const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>);
 const UsersIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>);
+const ReceiptIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="lucide lucide-file-text"
+  >
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+    <path d="M14 2v6h6" />
+    <path d="M16 13H8" />
+    <path d="M16 17H8" />
+    <path d="M10 9H8" />
+  </svg>
+);
 
 // Helper function to format currency
 const formatCurrency = (amount) => {
@@ -595,9 +616,10 @@ const App = () => {
   };
 
   // Dashboard Component
-  const Dashboard = ({ isAdmin, userPlans, allUsers, schemes }) => {
+  const Dashboard = ({ isAdmin, userPlans, allUsers, schemes, db }) => {
     const [goldPrice, setGoldPrice] = useState(null);
     const [silverPrice, setSilverPrice] = useState(null);
+    const [billTotals, setBillTotals] = useState({ today: 0, month: 0 });
 
     useEffect(() => {
       const fetchPrices = async () => {
@@ -625,10 +647,30 @@ const App = () => {
       fetchPrices();
     }, []);
 
+    useEffect(() => {
+      if (!db || !isAdmin) return;
+      const billsRef = collection(db, 'bills');
+      const unsub = onSnapshot(billsRef, (snapshot) => {
+        const data = snapshot.docs.map((d) => d.data());
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const monthStr = todayStr.slice(0, 7);
+        let today = 0;
+        let month = 0;
+        data.forEach((b) => {
+          const amt = b.totalAmount || 0;
+          if (b.date === todayStr) today += amt;
+          if (b.date && b.date.slice(0, 7) === monthStr) month += amt;
+        });
+        setBillTotals({ today, month });
+      });
+      return () => unsub();
+    }, [db, isAdmin]);
+
     if (isAdmin) {
       const totalUsers = allUsers.length;
       const activeUsers = allUsers.filter((u) => u.active).length;
       const totalSchemes = schemes.length;
+
       return (
         <div className="p-4 sm:p-6 lg:p-8">
           <h2 className="text-3xl font-bold text-indigo-800 mb-6">{t('dashboard')}</h2>
@@ -644,6 +686,14 @@ const App = () => {
             <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
               <h3 className="text-xl font-semibold text-gray-900">{t('total_schemes')}</h3>
               <p className="text-3xl font-bold text-indigo-600 mt-2">{totalSchemes}</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">Today's Total Bill</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">{formatCurrency(billTotals.today)}</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">Monthly Total Bill</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">{formatCurrency(billTotals.month)}</p>
             </div>
             <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
               <h3 className="text-xl font-semibold text-gray-900">{t('tn_metal_prices')}</h3>
@@ -1338,6 +1388,21 @@ const App = () => {
                   {t("plans")}
                 </button>
               </li>
+              {isAdmin && (
+                <li>
+                  <button
+                    onClick={() => setCurrentPage("BillEntry")}
+                    className={`w-full flex items-center p-3 rounded-xl transition-colors hover:bg-indigo-100 hover:text-indigo-800 ${
+                      currentPage === "BillEntry"
+                        ? "bg-indigo-50 text-indigo-800 font-semibold"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    <ReceiptIcon className="mr-3" />
+                    Bill Entry
+                  </button>
+                </li>
+              )}
               <li>
                 <button
                   onClick={() => setCurrentPage("UserScreen")}
@@ -1425,6 +1490,17 @@ const App = () => {
               <PlusIcon /> {" "}
               <span className="text-xs">{t("join_nav")}</span>
             </button>
+            {isAdmin && (
+              <button
+                onClick={() => setCurrentPage("BillEntry")}
+                className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
+                  currentPage === "BillEntry" ? "text-indigo-800" : "text-gray-500"
+                }`}
+              >
+                <ReceiptIcon /> {" "}
+                <span className="text-xs">Bill</span>
+              </button>
+            )}
             <button
               onClick={() => setCurrentPage("UserScreen")}
               className={`flex flex-col items-center p-2 rounded-xl transition-colors ${
@@ -1458,6 +1534,7 @@ const App = () => {
               userPlans={userPlans}
               allUsers={allUsers}
               schemes={schemes}
+              db={db}
             />
           )}
           {currentPage === "MyPlans" && (
@@ -1479,6 +1556,7 @@ const App = () => {
               isAdmin={isAdmin}
             />
           )}
+          {currentPage === "BillEntry" && <BillEntry db={db} />}
           {currentPage === "UserScreen" && (
             <UserScreen
               user={user}
