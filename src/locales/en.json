@@ -171,8 +171,16 @@
           "customer_list_title": "Customers",
           "deactivate": "Deactivate",
           "activate": "Activate",
-          "withdraw": "Withdraw",
-          "withdraw_success": "Plan withdrawn and gold added to wallet.",
-          "withdraw_fail": "Failed to withdraw plan."
+  "withdraw": "Withdraw",
+  "withdraw_success": "Plan withdrawn and gold added to wallet.",
+  "withdraw_fail": "Failed to withdraw plan.",
+  "transactions": "Transactions",
+  "transactions_nav": "Transactions",
+  "latest_transaction": "Latest Transaction",
+  "payment": "Payment",
+  "created_at": "Created At",
+  "saved_gold": "Saved Gold",
+  "no_transactions": "No transactions found.",
+  "user": "User"
 
 }
