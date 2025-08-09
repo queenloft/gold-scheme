@@ -820,6 +820,18 @@ const App = () => {
                     <span className="font-medium">{t("tenure")}</span>{" "}
                     {scheme.tenure} {t("months")}
                   </p>
+                     <p>
+                    <span className="font-medium">{t("discountPerGram")}</span>{" "}
+                    {scheme.discountPerGram}
+                  </p>
+                    <p>
+                    <span className="font-medium">{t("vatDiscountPercentage")}</span>{" "}
+                    {scheme.vatDiscountPercentage}
+                  </p>
+                   <p>
+                    <span className="font-medium">{t("finalSettlementDiscount")}</span>{" "}
+                    {scheme.finalSettlementDiscount}
+                  </p>
                   <p>
                     <span className="font-medium">{t("total_amount")}</span>{" "}
                     {formatCurrency(scheme.totalAmount)}
@@ -889,6 +901,9 @@ const App = () => {
     const [title, setTitle] = useState('');
     const [subtitle, setSubtitle] = useState('');
     const [description, setDescription] = useState('');
+    const [discountPerGram, setDiscountPerGram] = useState(0)
+    const [vatDiscountPercentage, setVatDiscountPercentage] = useState(0)
+    const [finalSettlementDiscount, setFinalSettlementDiscount] = useState(0)
   
     const handleSubmit = (e) => {
       e.preventDefault();
@@ -900,6 +915,9 @@ const App = () => {
         subtitle,
         description,
         totalAmount: parseFloat(monthlyAmount) * parseInt(tenure),
+        discountPerGram,
+        vatDiscountPercentage,
+        finalSettlementDiscount
       });
       onClose();
     };
@@ -914,6 +932,10 @@ const App = () => {
             <input type="text" placeholder={t('group_code_placeholder')} value={groupCode} onChange={(e) => setGroupCode(e.target.value)} className="w-full p-3 border rounded-md" required />
             <input type="number" placeholder={t('monthly_amount_placeholder')} value={monthlyAmount} onChange={(e) => setMonthlyAmount(e.target.value)} className="w-full p-3 border rounded-md" required />
             <input type="number" placeholder={t('tenure_placeholder')} value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-3 border rounded-md" required />
+                        <input type="number" placeholder={t('discount_per_gram')} value={discountPerGram} onChange={(e) => setDiscountPerGram(e.target.value)} className="w-full p-3 border rounded-md" required />
+ <input type="number" placeholder={t('vatDiscountPercentage')} value={vatDiscountPercentage} onChange={(e) => setVatDiscountPercentage(e.target.value)} className="w-full p-3 border rounded-md" required />
+ <input type="number" placeholder={t('finalSettlementDiscount')} value={finalSettlementDiscount} onChange={(e) => setFinalSettlementDiscount(e.target.value)} className="w-full p-3 border rounded-md" required />
+
             <textarea placeholder={t('description')} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
             <div className="flex gap-4">
               <button type="button" onClick={onClose} className="flex-1 py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors">{t('cancel')}</button>
@@ -933,6 +955,9 @@ const App = () => {
     const [title, setTitle] = useState(scheme.title);
     const [subtitle, setSubtitle] = useState(scheme.subtitle);
     const [description, setDescription] = useState(scheme.description);
+    const [discountPerGram, setDiscountPerGram] = useState(scheme.discountPerGram)
+    const [vatDiscountPercentage, setVatDiscountPercentage] = useState(scheme.vatDiscountPercentage)
+    const [finalSettlementDiscount, setFinalSettlementDiscount] = useState(scheme.finalSettlementDiscount)
   
     const handleSubmit = (e) => {
       e.preventDefault();
@@ -958,7 +983,11 @@ const App = () => {
             <input type="text" placeholder={t('group_code_placeholder')} value={groupCode} onChange={(e) => setGroupCode(e.target.value)} className="w-full p-3 border rounded-md" required />
             <input type="number" placeholder={t('monthly_amount_placeholder')} value={monthlyAmount} onChange={(e) => setMonthlyAmount(e.target.value)} className="w-full p-3 border rounded-md" required />
             <input type="number" placeholder={t('tenure_placeholder')} value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-3 border rounded-md" required />
-            <textarea placeholder={t('description')} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
+              <input type="number" placeholder={t('discount_per_gram')} value={discountPerGram} onChange={(e) => setDiscountPerGram(e.target.value)} className="w-full p-3 border rounded-md" required />
+ <input type="number" placeholder={t('vatDiscountPercentage')} value={vatDiscountPercentage} onChange={(e) => setVatDiscountPercentage(e.target.value)} className="w-full p-3 border rounded-md" required />
+ <input type="number" placeholder={t('finalSettlementDiscount')} value={finalSettlementDiscount} onChange={(e) => setFinalSettlementDiscount(e.target.value)} className="w-full p-3 border rounded-md" required />
+
+<textarea placeholder={t('description')} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-3 border rounded-md" rows="3" required />
             <div className="flex gap-4">
               <button type="button" onClick={onClose} className="flex-1 py-3 px-4 rounded-xl border-2 border-gray-300 hover:bg-gray-100 transition-colors">{t('cancel')}</button>
               <button type="submit" className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors">{t('update')}</button>
