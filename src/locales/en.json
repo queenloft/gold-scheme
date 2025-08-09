@@ -111,5 +111,8 @@
   "total_paid": "Total Paid",
   "total_due": "Total Due",
   "total_gold_weight": "Total Gold Weight",
+  "tn_metal_prices": "Gold & Silver Price (Tamil Nadu)",
+  "gold_price_per_gram": "Gold price (per g)",
+  "silver_price_per_gram": "Silver price (per g)",
   "dashboard_nav": "Dashboard"
 }
