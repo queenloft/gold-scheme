@@ -80,8 +80,6 @@ const App = () => {
   const [schemes, setSchemes] = useState([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
-  const [paymentAmount, setPaymentAmount] = useState('');
-  const [paymentReference, setPaymentReference] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDeactivateConfirmModal, setShowDeactivateConfirmModal] = useState(false);
@@ -280,16 +278,25 @@ const App = () => {
   const handleJoinPlan = async (scheme) => {
     if (db && userId) {
       try {
-        const planDocRef = doc(collection(db, `artifacts/${__app_id}/users/${userId}/myPlans`));
-        await setDoc(planDocRef, {
-          ...scheme,
-          joinDate: new Date().toISOString(),
-          paidAmount: 0,
-          paidWeight: 0,
-          progress: 0,
-          status: 'Active',
-          maturityDate: new Date(new Date().setMonth(new Date().getMonth() + scheme.tenure)).toISOString(),
-        });
+              // Use the corrected Firestore path logic from the previous conversation
+      const myPlansCollectionRef = collection(db, `artifacts/${__app_id}/users/${userId}/myPlans`);
+      const planDocRef = doc(myPlansCollectionRef, scheme.id);
+      const docSnap = await getDoc(planDocRef);
+      if (docSnap.exists()) {
+        setModalMessage(t('join_plan_fail'));
+        setShowModal(true);
+        return; // Exit the function to prevent writing the document
+      }
+
+      await setDoc(planDocRef, {
+        ...scheme,
+        joinDate: new Date().toISOString(),
+        paidAmount: 0,
+        paidWeight: 0,
+        progress: 0,
+        status: 'Active',
+        maturityDate: new Date(new Date().setMonth(new Date().getMonth() + scheme.tenure)).toISOString(),
+      });
         setModalMessage(t('join_plan_success', { title: scheme.title }));
         setShowModal(true);
         setCurrentPage('MyPlans');
@@ -301,41 +308,72 @@ const App = () => {
     }
   };
 
-  const handleAddPayment = async () => {
+  const handleAddPayment = async ({
+    paymentAmount,
+    paymentReference
+  }) => {
     if (db && userId && selectedPlanForPayment) {
       try {
         const amount = parseFloat(paymentAmount);
         if (isNaN(amount) || amount <= 0) {
-          setModalMessage(t('enter_valid_amount'));
+          setModalMessage(t("enter_valid_amount"));
           setShowModal(true);
           return;
         }
 
         const newPaidAmount = selectedPlanForPayment.paidAmount + amount;
-        const newProgress = (newPaidAmount / selectedPlanForPayment.totalAmount) * 100;
-        
-        const newPaidWeight = (newPaidAmount / 20000) * 2.220; 
+        const newProgress =
+          (newPaidAmount / selectedPlanForPayment.totalAmount) * 100;
 
-        const planRef = doc(db, `artifacts/${__app_id}/users/${userId}/myPlans`, selectedPlanForPayment.id);
+        const newPaidWeight = (newPaidAmount / 20000) * 2.22;
+
+        const planRef = doc(
+          db,
+          `artifacts/${__app_id}/users/${userId}/myPlans`,
+          selectedPlanForPayment.id
+        );
+
+        // Get the existing data to check the last payment date
+        const docSnap = await getDoc(planRef);
+        const planData = docSnap.data();
+        const lastPaymentDate = new Date(planData.lastPaymentAdded);
+        const oneMonthAgo = new Date(
+          new Date().setMonth(new Date().getMonth() - 1)
+        );
+
+        // Check if the last payment was less than a month ago
+        if (lastPaymentDate > oneMonthAgo) {
+          setModalMessage(
+            `Error: You have already made a payment this month for plan "${selectedPlanForPayment.id}".`
+          );
+          setShowModal(true);
+          return; // Exit the function
+        }
+
         await updateDoc(planRef, {
           paidAmount: newPaidAmount,
           paidWeight: newPaidWeight,
           progress: newProgress,
+          lastPaymentAdded: new Date().toISOString(),
         });
 
-        await addDoc(collection(db, `artifacts/${__app_id}/users/${userId}/paymentEntries`), {
-          planId: selectedPlanForPayment.id,
-          date: new Date().toISOString(),
-          amount: amount,
-          status: 'RECEIVED',
-          reference: paymentReference || 'Cash/UPI',
-        });
+        await addDoc(
+          collection(
+            db,
+            `artifacts/${__app_id}/users/${userId}/paymentEntries`
+          ),
+          {
+            planId: selectedPlanForPayment.id,
+            date: new Date().toISOString(),
+            amount: amount,
+            status: "RECEIVED",
+            reference: paymentReference || "Cash/UPI",
+          }
+        );
 
         setShowPaymentModal(false);
-        setModalMessage(t('payment_success', { amount: amount }));
+        setModalMessage(t("payment_success", { amount: amount }));
         setShowModal(true);
-        setPaymentAmount('');
-        setPaymentReference('');
       } catch (error) {
         setModalMessage(t('payment_fail'));
         setShowModal(true);
@@ -1030,6 +1068,7 @@ const App = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedScheme, setSelectedScheme] = useState(null);
     const { t } = useTranslation();
+    console.log('schmes',schemes)
   
     return (
       <div className="p-4 sm:p-6 lg:p-8">
@@ -1480,8 +1519,10 @@ const App = () => {
   };
   
   // Add Payment Modal Component
-  const PaymentModal = ({ plan, onClose, onAddPayment, paymentAmount, setPaymentAmount, paymentReference, setPaymentReference }) => {
+  const PaymentModal = ({ plan, onClose, onAddPayment, }) => {
     const { t } = useTranslation();
+      const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentReference, setPaymentReference] = useState('');
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full m-4">
@@ -1519,7 +1560,12 @@ const App = () => {
               {t('cancel')}
             </button>
             <button
-              onClick={onAddPayment}
+              onClick={()=>{
+                onAddPayment({
+                  paymentAmount,
+                  paymentReference
+                })
+              }}
               className="flex-1 bg-indigo-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition-colors"
             >
               {t('submit_payment')}
@@ -1878,14 +1924,8 @@ const App = () => {
           plan={selectedPlanForPayment}
           onClose={() => {
             setShowPaymentModal(false);
-            setPaymentAmount("");
-            setPaymentReference("");
           }}
           onAddPayment={handleAddPayment}
-          paymentAmount={paymentAmount}
-          setPaymentAmount={setPaymentAmount}
-          paymentReference={paymentReference}
-          setPaymentReference={setPaymentReference}
         />
       )}
 
