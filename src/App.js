@@ -603,7 +603,7 @@ const App = () => {
       const fetchPrices = async () => {
         try {
           const res = await fetch(
-            'https://metals-api.com/api/latest?access_key=YOUR_API_KEY&base=INR&symbols=XAU,XAG'
+            'https://api.metalpriceapi.com/v1/latest?api_key=85121dcdae0e02977db7bb967e5d63bc&&base=INR&currencies=XAU,XAG'
           );
           const data = await res.json();
           if (data && data.rates) {
