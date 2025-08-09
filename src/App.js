@@ -515,24 +515,6 @@ const App = () => {
       }
     };
 
-    const handleSendOtp = async (e) => {
-      e.preventDefault();
-      try {
-        const actionCodeSettings = {
-          url: window.location.href,
-          handleCodeInApp: true,
-        };
-        await sendSignInLinkToEmail(authInstance, otpEmail, actionCodeSettings);
-        window.localStorage.setItem('emailForSignIn', otpEmail);
-        setIsOtpSent(true);
-        setModalMessage(t('login_link_sent'));
-        setShowModal(true);
-      } catch (error) {
-        setModalMessage(t('otp_send_fail'));
-        setShowModal(true);
-        console.error('OTP send failed:', error);
-      }
-    };
 
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -584,29 +566,9 @@ const App = () => {
               <hr className="flex-grow border-t-2 border-gray-200" />
             </div>
 
-            <form onSubmit={handleSendOtp} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">{t('otp_email_label')}</label>
-                <input
-                  type="email"
-                  value={otpEmail}
-                  onChange={(e) => setOtpEmail(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 transition-colors transform hover:scale-105"
-              >
-                {t('send_otp_email')}
-              </button>
-              {isOtpSent && <p className="text-center text-sm text-green-600 mt-2">{t('check_email')}</p>}
-            </form>
-
             <button
               onClick={() => setCurrentPage('Register')}
-              className="mt-4 w-full text-indigo-600 py-3 px-4 rounded-xl border-2 border-indigo-600 hover:bg-indigo-50 transition-colors transform hover:scale-105"
+              className="mt-2 w-full text-indigo-600 py-3 px-4 rounded-xl border-2 border-indigo-600 hover:bg-indigo-50 transition-colors transform hover:scale-105"
             >
               {t('create_new_account')}
             </button>
