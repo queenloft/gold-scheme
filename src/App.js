@@ -596,6 +596,35 @@ const App = () => {
 
   // Dashboard Component
   const Dashboard = ({ isAdmin, userPlans, allUsers, schemes }) => {
+    const [goldPrice, setGoldPrice] = useState(null);
+    const [silverPrice, setSilverPrice] = useState(null);
+
+    useEffect(() => {
+      const fetchPrices = async () => {
+        try {
+          const res = await fetch(
+            'https://metals-api.com/api/latest?access_key=YOUR_API_KEY&base=INR&symbols=XAU,XAG'
+          );
+          const data = await res.json();
+          if (data && data.rates) {
+            const goldRate = data.rates.XAU;
+            const silverRate = data.rates.XAG;
+            if (goldRate) {
+              const inrPerOunce = 1 / goldRate;
+              setGoldPrice(inrPerOunce / 31.1035);
+            }
+            if (silverRate) {
+              const inrPerOunceSilver = 1 / silverRate;
+              setSilverPrice(inrPerOunceSilver / 31.1035);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch metal prices:', error);
+        }
+      };
+      fetchPrices();
+    }, []);
+
     if (isAdmin) {
       const totalUsers = allUsers.length;
       const activeUsers = allUsers.filter((u) => u.active).length;
@@ -615,6 +644,17 @@ const App = () => {
             <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
               <h3 className="text-xl font-semibold text-gray-900">{t('total_schemes')}</h3>
               <p className="text-3xl font-bold text-indigo-600 mt-2">{totalSchemes}</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{t('tn_metal_prices')}</h3>
+              {goldPrice && silverPrice ? (
+                <div className="mt-2 text-indigo-600">
+                  <p>{t('gold_price_per_gram')}: {formatCurrency(goldPrice)}</p>
+                  <p>{t('silver_price_per_gram')}: {formatCurrency(silverPrice)}</p>
+                </div>
+              ) : (
+                <p className="text-gray-500 mt-2">{t('loading')}</p>
+              )}
             </div>
           </div>
         </div>
@@ -652,6 +692,17 @@ const App = () => {
               <p className="text-3xl font-bold text-indigo-600 mt-2">
                 {totalWeight.toFixed(3)} g
               </p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{t('tn_metal_prices')}</h3>
+              {goldPrice && silverPrice ? (
+                <div className="mt-2 text-indigo-600">
+                  <p>{t('gold_price_per_gram')}: {formatCurrency(goldPrice)}</p>
+                  <p>{t('silver_price_per_gram')}: {formatCurrency(silverPrice)}</p>
+                </div>
+              ) : (
+                <p className="text-gray-500 mt-2">{t('loading')}</p>
+              )}
             </div>
           </div>
         </div>

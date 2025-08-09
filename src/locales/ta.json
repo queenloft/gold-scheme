@@ -111,5 +111,8 @@
   "total_paid": "மொத்தம் செலுத்தப்பட்டது",
   "total_due": "மொத்த பாக்கி",
   "total_gold_weight": "மொத்த தங்க எடை",
+  "tn_metal_prices": "தமிழ்நாடு பொன் & வெள்ளி விலை",
+  "gold_price_per_gram": "பொன் விலை (கிராம்)",
+  "silver_price_per_gram": "வெள்ளி விலை (கிராம்)",
   "dashboard_nav": "டாஷ்போர்டு"
 }
